@@ -1,3 +1,5 @@
+// 2022 Programming Lab
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <time.h>
