@@ -107,6 +107,7 @@ int main() {
     printXY(35, 19, "ขั Selection : ");
     showCursor();
 
+    /* Main menu selection */
     while (1) {
         printXY(49, 19, " ");
         scanf("%c", &select);
@@ -132,6 +133,7 @@ int main() {
             gotoXY(50, 19);
         }
     }
+    /* Main menu selection End*/
 
     // select = S : show score
     // select = F : play game
