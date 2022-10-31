@@ -44,53 +44,76 @@ void draw_main_menu() {
 // returns 0: Quit, 1: start game, 2: score
 int draw_main_menu_sel() {
     int iSel;
-    
+    char cSel;
+
     printXY(35, 19, "Ｃ Selection : ");
     showCursor();
 
     while (1) {
         printXY(49, 19, " ");
-        char cSel = getchar();
+        scanf("%c", &cSel);
 
         if (cSel == 'Q') {
             printXY(38, 21, "                   ");
-            printXY(38, 21, "Quit");
+            setColor(BLACK, MAGENTA2);
+            printXY(38, 21, " > Quit ");
+            setColor(WHITE, BLACK);
+            printXY(47, 21, "              ");
             gotoXY(0, HEIGHT - 1);
             return iSel = 0;
-            // exit(0);
         } else if (cSel == 'F') {
             printXY(38, 21, "                   ");
-            printXY(38, 21, "Start game");
+            printXY(38, 21, "Start game         ");
             Sleep(1000);
             return iSel = 1;
-            //break;
         } else if (cSel == 'S') {
             printXY(38, 21, "                   ");
-            printXY(38, 21, "Show score");
+            setColor(BLACK, YELLOW2);
+            printXY(38, 21, " > Show score ");
+            setColor(WHITE, BLACK);
+            printXY(52, 21, "                   ");
             Sleep(1000);
             return iSel = 2;
-            //break;
         } else {
             printXY(38, 21, "                   ");
             setColor(WHITE, RED2);
-            printXY(38, 21, "Please enter again.");
+            printXY(38, 21, " > Please enter again.");
             setColor(WHITE, BLACK);
             gotoXY(50, 19);
         }
+        
     }
 }
 
-void score_menu() {
-    char ch;
+void score_menu(FILE *pF) {
+    int i;
+    char cSel, output[50];
+    Score temp[10] = { 0, };
+
     cls(WHITE, BLACK);
-    removeCursor();
+
     drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
 
+    fseek(pF, 0, SEEK_SET);
+    for (i = 0; i < 10; i++) {
+        fread(&temp[i], sizeof(Score), 1, pF);
+    }
+
+
     while (1) {
-        printXY(35, 5, "          <Score Board>          ");
+        printXY(35, 8, "忙式式式式<Score  Board>式式式式忖");
+        printXY(35, 9, "弛                              弛");
+        for (i = 0; i < 10; i++) {
+            sprintf(output, "弛        [%02d] %3s %4d         弛\n", i + 1, temp[i].name, temp[i].score);
+            printXY(35, 10 + i, output);
+        }
+        printXY(35, 20, "弛                              弛");
+        printXY(35, 21, "戌式式式式式式式式式式式式式式式戎");
+
         showCursor();
         gotoXY(35, 27);
-        ch = getchar();
+        cSel = getchar();
+
     }
 
 }
@@ -158,18 +181,30 @@ void score_menu() {
 //}
 
 int main() {
-    //int i;
     char buf[100];
+    int i;
     int select = 0;
     FILE *pF;
 
-    init();
+    Score scr[3] = { {"AAA", 1111}, {"BBB", 999}, {"CCC", 3333} };
 
+    pF = fopen(DATA, "r+b");
+    if (pF == NULL) {
+        printXY(0, HEIGHT - 1, "Can not open file. Exiting...");
+        exit(1);
+    }
+
+    fseek(pF, 0, SEEK_SET);
+    for (i = 0; i < 3; i++) {
+        fwrite(&scr[i], sizeof(Score), 1, pF);
+    }
+
+    init();
     draw_main_menu();
 
-
-    /* Main menu selection */
+    /* Main menu - selection */
     select = draw_main_menu_sel();
+    removeCursor();
 
     // select = Q (0) : quit
     // select = S (2) : show score
@@ -180,44 +215,25 @@ int main() {
             exit(0);
         case 1:
             // game();
-            printXY(10, 10, "start game");
             cls(WHITE, BLACK);
             //drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
             break;
         case 2:
-            score_menu();
+            score_menu(pF);
             break;
     }
 
-    pF = fopen(DATA, "r+b");
-    if (pF == NULL) {
-        pF = fopen(DATA, "w+b");
-        if (pF == NULL) {
-            printXY(0, HEIGHT - 1, "Can not open file. Exiting...");
-            exit(1);
-        }
-    }
 
     gotoXY(36, 10);
-
-    char nick[3];
-    int i;
-    Score temp;
-    Score scr[3] = { {"AAA", 1111}, {"BBB", 2222}, {"CCC", 3333} };
-
-    fseek(pF, 0, SEEK_SET);
-    for (i = 0; i < 3; i++) {
-        fwrite(&scr[i], sizeof(Score), 1, pF);
-    }
 
     gotoXY(36, 10);
     cls(WHITE, BLACK);
 
-    fseek(pF, 0, SEEK_SET);
-    for (i = 0; i < 3; i++) {
-        fread(&temp, sizeof(Score), 1, pF);
-        printf("[%02d]\t%s\t%d\n", i + 1, temp.name, temp.score);
-    }
+    //fseek(pF, 0, SEEK_SET);
+    //for (i = 0; i < 3; i++) {
+    //    fread(&temp, sizeof(Score), 1, pF);
+    //    printf("[%02d]\t%s\t%d\n", i + 1, temp.name, temp.score);
+    //}
 
     fclose(pF);
 
