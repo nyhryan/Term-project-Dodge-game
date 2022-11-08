@@ -7,186 +7,230 @@
 #include <string.h>
 #include "commands.h"
 
-#define WIDTH  104
-#define HEIGHT 33
 #define DATA   "score.bin"
+#define TOTAL_BULLET 50
 
-typedef struct _Score {
-    char name[4];
-    int score;
-} Score;
+typedef struct _Bullet {
+    int bX;
+    int bY;
+    int bOrient;        // 0 : 12시, 1 : 1~2시, 2 : 세시, ... , 6 : 9시, 7 : 10 ~ 11시 방향
+} Bullet;
 
-int Delay = 100; // 100 msec delay, 이 값을 줄이면 속도가 빨라진다.
-int keep_moving = 1; // 1:계속이동, 0:한칸씩이동.
+// 탄막들 정보 구조체
+Bullet Bullet_info[TOTAL_BULLET];
 
-// Reset CMD color, hide cursor, set size
-void init() {
-    cls(WHITE, BLACK);
-    removeCursor();
-    setCmdSize(WIDTH, HEIGHT);
-}
+int Delay = 50;         // 100 msec delay, 이 값을 줄이면 속도가 빨라진다.
+int keep_moving = 1;    // 1:계속이동, 0:한칸씩이동.
 
-// Draw main menu
-void draw_main_menu() {
-    drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
-    printXY(2, HEIGHT - 3, "상상력인재학부 2291012 남윤혁");
+int pX, pY;             //플레이어 좌표
 
-    printXY(35, 10, "┌────<Bullet  Hell>────┐");
-    printXY(35, 11, "│                              │");
-    printXY(35, 12, "│         - Start [F]          │");
-    printXY(35, 13, "│         - Score [S]          │");
-    printXY(35, 14, "│                              │");
-    printXY(35, 15, "│         - Quit  [Q]          │");
-    printXY(35, 16, "│                              │");
-    printXY(35, 17, "└───────────────┘");
-}
 
-// returns 0: Quit, 1: start game, 2: score
-int draw_main_menu_sel() {
-    int iSel;
-    char cSel;
+// 현재 탄막 개수
+int bullet_num = 0;
 
-    printXY(35, 19, "☞ Selection : ");
-    showCursor();
 
-    while (1) {
-        printXY(49, 19, " ");
-        scanf("%c", &cSel);
 
-        if (cSel == 'Q') {
-            printXY(38, 21, "                   ");
-            setColor(BLACK, MAGENTA2);
-            printXY(38, 21, " > Quit ");
-            setColor(WHITE, BLACK);
-            printXY(47, 21, "              ");
-            gotoXY(0, HEIGHT - 1);
-            return iSel = 0;
-        } else if (cSel == 'F') {
-            printXY(38, 21, "                   ");
-            printXY(38, 21, "Start game         ");
-            Sleep(1000);
-            return iSel = 1;
-        } else if (cSel == 'S') {
-            printXY(38, 21, "                   ");
-            setColor(BLACK, YELLOW2);
-            printXY(38, 21, " > Show score ");
-            setColor(WHITE, BLACK);
-            printXY(52, 21, "                   ");
-            Sleep(1000);
-            return iSel = 2;
-        } else {
-            printXY(38, 21, "                   ");
-            setColor(WHITE, RED2);
-            printXY(38, 21, " > Please enter again.");
-            setColor(WHITE, BLACK);
-            gotoXY(50, 19);
-        }
-        
+// 탄막 생성
+void CreateBullet() {
+    int init_point = rand() % 4;         // 화면의 4분면 중 어디서 스폰할지
+
+    switch (init_point) {
+        // 제 1,2 사분면 (위)
+        case 0:
+            Bullet_info[bullet_num].bX = rand() % (WIDTH - 5) + 2; 
+            //Bullet_info[bullet_num].bX = 20; 
+            Bullet_info[bullet_num].bY = 2;
+            Bullet_info[bullet_num].bOrient = rand() % 3 + 3;
+            break;
+        // 제 2, 3 사분면 (좌)
+        case 1:
+            Bullet_info[bullet_num].bX = 2;
+            //Bullet_info[bullet_num].bY = 20;
+            Bullet_info[bullet_num].bY = rand() % (HEIGHT - 10) + 2;
+            Bullet_info[bullet_num].bOrient = rand() % 3 + 1;
+            break;
+        // 제 3, 4 사분면 (아래)
+        case 2:
+            Bullet_info[bullet_num].bX = rand() % (WIDTH - 6) + 2;
+            //Bullet_info[bullet_num].bX = WIDTH - 4;
+            Bullet_info[bullet_num].bY = HEIGHT - 4;
+            Bullet_info[bullet_num].bOrient = (rand() % 3 + 7) % 8; // { ([0, 1, 2] + 7) = [7, 8, 9] } % 8 = [7, 0, 1]
+            break;
+        // 제 4, 1 사분면 (우)
+        case 3:
+            Bullet_info[bullet_num].bX = WIDTH - 4;
+            //Bullet_info[bullet_num].bY = 20;
+            Bullet_info[bullet_num].bY = rand() % (HEIGHT - 10) + 2;
+            Bullet_info[bullet_num].bOrient = rand() % 3 + 5;
+            break;
     }
+    bullet_num++;
 }
 
-void score_menu(FILE *pF) {
+void CopyBullet(int i, int j) {
+    Bullet_info[i].bX = Bullet_info[j].bX;
+    Bullet_info[i].bY = Bullet_info[j].bY;
+    Bullet_info[i].bOrient = Bullet_info[j].bOrient;
+}
+
+void ClearBullet() {
     int i;
-    char cSel, output[50];
-    Score temp[10] = { 0, };
-
-    cls(WHITE, BLACK);
-
-    drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
-
-    fseek(pF, 0, SEEK_SET);
-    for (i = 0; i < 10; i++) {
-        fread(&temp[i], sizeof(Score), 1, pF);
+    for (i = 0; i < bullet_num - 1; i++) {
+        bufferPrintXY(Bullet_info[i].bX, Bullet_info[i].bY, " ");
     }
-
-
-    while (1) {
-        printXY(35, 8, "┌────<Score  Board>────┐");
-        printXY(35, 9, "│                              │");
-        for (i = 0; i < 10; i++) {
-            sprintf(output, "│        [%02d] %3s %4d         │\n", i + 1, temp[i].name, temp[i].score);
-            printXY(35, 10 + i, output);
-        }
-        printXY(35, 20, "│                              │");
-        printXY(35, 21, "└───────────────┘");
-
-        showCursor();
-        gotoXY(35, 27);
-        cSel = getchar();
-
-    }
-
 }
 
-//void player1(unsigned char ch) {
-//    static int oldx = 50, oldy = 10, newx = 50, newy = 10;
-//    int move_flag = 0;
-//    static int called = 0;
-//    static unsigned char last_ch = 0;
-//
-//    if (called == 0) { // 최초 위치
-//        removeCursor();
-//        putstar(oldx, oldy, '●');
-//        called = 1;
-//    }
-//    if (keep_moving && ch == 0)
-//        ch = last_ch;
-//    last_ch = ch;
-//
-//    switch (ch) {
-//        case UP:
-//            if (oldy > 0)
-//                newy = oldy - 1;
-//            else { // 벽에 부딛치면 방향을 반대로 이동
-//                newy = oldy + 1;
-//                last_ch = DOWN;
-//            }
-//            move_flag = 1;
-//            break;
-//        case DOWN:
-//            if (oldy < HEIGHT - 1)
-//                newy = oldy + 1;
-//            else {
-//                newy = oldy - 1;
-//                last_ch = UP;
-//            }
-//            move_flag = 1;
-//            break;
-//        case LEFT:
-//            if (oldx > 0)
-//                newx = oldx - 1;
-//            else {
-//                newx = oldx + 1;
-//                last_ch = RIGHT;
-//            }
-//            move_flag = 1;
-//            break;
-//        case RIGHT:
-//            if (oldx < WIDTH - 1)
-//                newx = oldx + 1;
-//            else {
-//                newx = oldx - 1;
-//                last_ch = LEFT;
-//            }
-//            move_flag = 1;
-//            break;
-//    }
-//    if (move_flag) {
-//        erasestar(oldx, oldy); // 마지막 위치의 * 를 지우고
-//        putstar(newx, newy, "*"); // 새로운 위치에서 * 를 표시한다.
-//        oldx = newx; // 마지막 위치를 기억한다.
-//        oldy = newy;
-//    }
-//
-//}
+void MoveBullet(int *px, int *py, int orient) {
+    switch (orient) {
+        case 0:
+            *py += 1;
+            break;
+        case 1:
+            *px += 1;
+            *py += 1;
+            break;
+        case 2:
+            *px += 2;
+            break;
+        case 3:
+            *px += 1;
+            *py -= 1;
+            break;
+        case 4:
+            *py -= 1;
+            break;
+        case 5:
+            *px -= 1;
+            *py -= 1;
+            break;
+        case 6:
+            *px -= 2;
+            break;
+        case 7:
+            *px -= 1;
+            *py += 1;
+            break;
+    }
+}
+
+// Bullet_info[]의 n번째 총알 삭제 (화면에서 지우는게 아님)
+void DelBullet(int n) {
+    int i;
+    for (i = n; i < bullet_num - 1; i++) {
+        CopyBullet(i, i + 1);
+    }
+    bullet_num--;
+}
+
+void PrintBullet() {
+    int i, newBullet = 0;
+    //scr_clear();
+
+    for (i = 0; i < bullet_num; i++) {
+        MoveBullet(&Bullet_info[i].bX, &Bullet_info[i].bY, Bullet_info[i].bOrient);
+
+        if (Bullet_info[i].bX < 3 || Bullet_info[i].bX > WIDTH - 3) {
+            DelBullet(i);
+            i--;
+            newBullet++;
+        } else if (Bullet_info[i].bY < 2 || Bullet_info[i].bY > HEIGHT - 3) {
+            DelBullet(i);
+            i--;
+            newBullet++;
+        }
+    }
+
+    for (i = 0; i < newBullet; i++) {
+        CreateBullet();
+    }
+
+    for (i = 0; i < bullet_num; i++) {
+        bufferPrintXY(Bullet_info[i].bX, Bullet_info[i].bY, "⊙");
+        //printf("⊙");
+    }
+}
+
+/* 플레이어 이동 : https://coding-factory.tistory.com/693 참고 */
+void player1() {
+    //scr_clear();
+
+    bufferPrintXY(pX, pY, " ");
+    if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
+        pX -= 2;
+        if (pX <= 1) {
+            pX = 2;
+        }
+    }
+    if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { //오른쪽
+        pX += 2;
+        if (pX >= WIDTH - 3) {
+            pX = WIDTH - 4;
+        }
+    }
+    if (GetAsyncKeyState(VK_UP) & 0x8000) { //위
+        pY--;
+        if (pY <= 0) {
+            pY = 1;
+        }
+    }
+    if (GetAsyncKeyState(VK_DOWN) & 0x8000) { //아래
+        pY++;
+        if (pY >= HEIGHT - 2) {
+            pY = HEIGHT - 3;
+        }
+    }
+
+    //setColor(YELLOW2, BLACK);
+    bufferPrintXY(pX, pY, "☆");
+    //setColor(WHITE, BLACK);
+}
+
+void game() {
+    int i;
+    pX = WIDTH / 2;
+    pY = HEIGHT / 2;
+    //cls(WHITE, BLACK);
+    scr_init();
+
+    while (1) {
+        /* double buffer start */
+
+
+        for (i = 0; i < TOTAL_BULLET; i++) {
+            CreateBullet();
+        }
+
+        //bufferDrawBox(0, 0, WIDTH - 2, HEIGHT - 2);
+        //PrintBullet();
+        //Sleep(13);
+        while (1) {
+            scr_switch();
+            scr_clear();
+
+            ClearBullet();
+
+            //setColor(YELLOW2, BLACK);
+            player1();
+            //setColor(WHITE, BLACK);
+
+            PrintBullet();
+            Sleep(15);
+        }
+
+        //Sleep(100);
+        /* double buffer end */
+    }
+    
+}
 
 int main() {
     char buf[100];
     int i;
     int select = 0;
     FILE *pF;
-
     Score scr[3] = { {"AAA", 1111}, {"BBB", 999}, {"CCC", 3333} };
+
+    srand((unsigned int) time(NULL));
 
     pF = fopen(DATA, "r+b");
     if (pF == NULL) {
@@ -198,6 +242,7 @@ int main() {
     for (i = 0; i < 3; i++) {
         fwrite(&scr[i], sizeof(Score), 1, pF);
     }
+    //scr_init();
 
     init();
     draw_main_menu();
@@ -214,13 +259,12 @@ int main() {
         case 0:
             exit(0);
         case 1:
-            // game();
-            cls(WHITE, BLACK);
-            //drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
+            game();
+
             break;
         case 2:
             score_menu(pF);
-            break;
+            main();
     }
 
 

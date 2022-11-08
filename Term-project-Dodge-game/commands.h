@@ -7,6 +7,9 @@
 
 #define BLANK '.'
 
+#define WIDTH  104
+#define HEIGHT 33
+
 // 색상 정의
 #define BLACK	 0
 #define BLUE1	 1
@@ -40,15 +43,34 @@
 #define LEFT2	'a'
 #define RIGHT2	'd'
 
+typedef struct _Score {
+    char name[4];
+    int score;
+} Score;
+
+void scr_init();
+void scr_switch();
+void scr_clear();
+void scr_release();
+
+void init();
 void removeCursor(void);
 void showCursor(void);
 void setCmdSize(int cols, int rows);
 void gotoXY(int x, int y);
+void bufferGotoXY(int x, int y);
+void printscr(char *str);
 void putstar(int x, int y, char ch);
 void printXY(int x, int y, char *ch);
+void bufferPrintXY(int x, int y, char *ch);
 void erasestar(int x, int y);
 void setColor(int fg_color, int bg_color);
 void cls(int fg_color, int bg_color);
 void drawBox(int x1, int y1, int x2, int y2);
+void bufferDrawBox(int x1, int y1, int x2, int y2);
+void draw_main_menu();
+int draw_main_menu_sel();
+void score_menu(FILE *pF);
+
 
 #endif
