@@ -8,7 +8,7 @@
 #include "commands.h"
 
 #define DATA   "score.bin"
-#define TOTAL_BULLET 50
+#define TOTAL_BULLET 5
 
 typedef struct _Bullet {
     int bX;
@@ -145,7 +145,9 @@ void PrintBullet() {
     }
 
     for (i = 0; i < bullet_num; i++) {
-        bufferPrintXY(Bullet_info[i].bX, Bullet_info[i].bY, "¢Á");
+        bufferSetColor(RED1, BLACK);
+        bufferPrintXY(Bullet_info[i].bX, Bullet_info[i].bY, "¡Æ");
+        bufferSetColor(WHITE, BLACK);
         //printf("¢Á");
     }
 }
@@ -154,7 +156,9 @@ void PrintBullet() {
 void player1() {
     //scr_clear();
 
+    //setColor(YELLOW1, BLACK);
     bufferPrintXY(pX, pY, " ");
+
     if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //¿ÞÂÊ
         pX -= 2;
         if (pX <= 1) {
@@ -190,11 +194,12 @@ void game() {
     pX = WIDTH / 2;
     pY = HEIGHT / 2;
     //cls(WHITE, BLACK);
+    //setColor(RED1, BLACK);
     scr_init();
+
 
     while (1) {
         /* double buffer start */
-
 
         for (i = 0; i < TOTAL_BULLET; i++) {
             CreateBullet();
@@ -203,18 +208,17 @@ void game() {
         //bufferDrawBox(0, 0, WIDTH - 2, HEIGHT - 2);
         //PrintBullet();
         //Sleep(13);
+
         while (1) {
             scr_switch();
             scr_clear();
 
             ClearBullet();
-
-            //setColor(YELLOW2, BLACK);
-            player1();
-            //setColor(WHITE, BLACK);
-
             PrintBullet();
-            Sleep(15);
+
+            player1();
+
+            Sleep(33);
         }
 
         //Sleep(100);
@@ -234,8 +238,11 @@ int main() {
 
     pF = fopen(DATA, "r+b");
     if (pF == NULL) {
-        printXY(0, HEIGHT - 1, "Can not open file. Exiting...");
-        exit(1);
+        pF = fopen(DATA, "w+b");
+        if (pF == NULL) {
+            printXY(0, HEIGHT - 1, "Can not open file. Exiting...");
+            exit(1);
+        }
     }
 
     fseek(pF, 0, SEEK_SET);

@@ -65,6 +65,7 @@ void printXY(int x, int y, char *ch);
 void bufferPrintXY(int x, int y, char *ch);
 void erasestar(int x, int y);
 void setColor(int fg_color, int bg_color);
+void bufferSetColor(int fg_color, int bg_color);
 void cls(int fg_color, int bg_color);
 void drawBox(int x1, int y1, int x2, int y2);
 void bufferDrawBox(int x1, int y1, int x2, int y2);

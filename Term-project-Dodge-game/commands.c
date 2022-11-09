@@ -130,6 +130,10 @@ void setColor(int fg_color, int bg_color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), fg_color | bg_color << 4);
 }
 
+void bufferSetColor(int fg_color, int bg_color) {
+    SetConsoleTextAttribute(scr_handle[hidden_index], fg_color | bg_color << 4);
+}
+
 // 화면 지우기고 원하는 배경색으로 설정한다.
 void cls(int fg_color, int bg_color) {
     char cmd[100];
