@@ -8,11 +8,12 @@
 #include "commands.h"
 
 #define DATA   "score.bin"
-#define TOTAL_BULLET 5
+#define TOTAL_BULLET 10
 
 typedef struct _Bullet {
     int bX;
     int bY;
+    int bColor;         // 1 ~ 15 컬러코드
     int bOrient;        // 0 : 12시, 1 : 1~2시, 2 : 세시, ... , 6 : 9시, 7 : 10 ~ 11시 방향
 } Bullet;
 
@@ -33,6 +34,9 @@ int bullet_num = 0;
 // 탄막 생성
 void CreateBullet() {
     int init_point = rand() % 4;         // 화면의 4분면 중 어디서 스폰할지
+
+    int rand_color = rand() % 3 + 4;
+    Bullet_info[bullet_num].bColor = rand_color;
 
     switch (init_point) {
         // 제 1,2 사분면 (위)
@@ -70,6 +74,7 @@ void CreateBullet() {
 void CopyBullet(int i, int j) {
     Bullet_info[i].bX = Bullet_info[j].bX;
     Bullet_info[i].bY = Bullet_info[j].bY;
+    Bullet_info[i].bColor = Bullet_info[j].bColor;
     Bullet_info[i].bOrient = Bullet_info[j].bOrient;
 }
 
@@ -86,28 +91,28 @@ void MoveBullet(int *px, int *py, int orient) {
             *py += 1;
             break;
         case 1:
-            *px += 1;
+            *px += 2;
             *py += 1;
             break;
         case 2:
             *px += 2;
             break;
         case 3:
-            *px += 1;
+            *px += 2;
             *py -= 1;
             break;
         case 4:
             *py -= 1;
             break;
         case 5:
-            *px -= 1;
+            *px -= 2;
             *py -= 1;
             break;
         case 6:
             *px -= 2;
             break;
         case 7:
-            *px -= 1;
+            *px -= 2;
             *py += 1;
             break;
     }
@@ -126,6 +131,7 @@ void PrintBullet() {
     int i, newBullet = 0;
     //scr_clear();
 
+
     for (i = 0; i < bullet_num; i++) {
         MoveBullet(&Bullet_info[i].bX, &Bullet_info[i].bY, Bullet_info[i].bOrient);
 
@@ -133,7 +139,7 @@ void PrintBullet() {
             DelBullet(i);
             i--;
             newBullet++;
-        } else if (Bullet_info[i].bY < 2 || Bullet_info[i].bY > HEIGHT - 3) {
+        } else if (Bullet_info[i].bY < 1 || Bullet_info[i].bY > HEIGHT - 3) {
             DelBullet(i);
             i--;
             newBullet++;
@@ -145,8 +151,8 @@ void PrintBullet() {
     }
 
     for (i = 0; i < bullet_num; i++) {
-        bufferSetColor(RED1, BLACK);
-        bufferPrintXY(Bullet_info[i].bX, Bullet_info[i].bY, "°");
+        bufferSetColor(Bullet_info[i].bColor, BLACK);
+        bufferPrintXY(Bullet_info[i].bX, Bullet_info[i].bY, "¤");
         bufferSetColor(WHITE, BLACK);
         //printf("⊙");
     }
@@ -184,8 +190,8 @@ void player1() {
         }
     }
 
-    bufferSetColor(YELLOW2, BLACK);
-    bufferPrintXY(pX, pY, "☆");
+    bufferSetColor(CYAN1, BLACK);
+    bufferPrintXY(pX, pY, "Ω");
     bufferSetColor(WHITE, BLACK);
 }
 
@@ -193,10 +199,8 @@ void game() {
     int i;
     pX = WIDTH / 2;
     pY = HEIGHT / 2;
-    //cls(WHITE, BLACK);
-    //setColor(RED1, BLACK);
-    scr_init();
 
+    scr_init();
 
     while (1) {
         /* double buffer start */
@@ -205,20 +209,18 @@ void game() {
             CreateBullet();
         }
 
-        //bufferDrawBox(0, 0, WIDTH - 2, HEIGHT - 2);
-        //PrintBullet();
-        //Sleep(13);
-
         while (1) {
             scr_switch();
             scr_clear();
+            
+            //bufferDrawBox(0, 0, WIDTH - 2, HEIGHT - 2);
 
             ClearBullet();
             PrintBullet();
 
             player1();
 
-            Sleep(33);
+            Sleep(15);
         }
 
         //Sleep(100);

@@ -183,6 +183,8 @@ void bufferDrawBox(int x1, int y1, int x2, int y2) {
         bufferPrintXY(x1, y, "弛");
         bufferPrintXY(x2, y, "弛");
     }
+
+
 }
 
 // Draw main menu
@@ -190,14 +192,14 @@ void draw_main_menu() {
     drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
     printXY(2, HEIGHT - 3, "鼻鼻溘檣營з睡 2291012 陴彌⑶");
 
-    printXY(35, 10, "忙式式式式<Bullet  Hell>式式式式忖");
-    printXY(35, 11, "弛                              弛");
-    printXY(35, 12, "弛         - Start [F]          弛");
-    printXY(35, 13, "弛         - Score [S]          弛");
-    printXY(35, 14, "弛                              弛");
-    printXY(35, 15, "弛         - Quit  [Q]          弛");
-    printXY(35, 16, "弛                              弛");
-    printXY(35, 17, "戌式式式式式式式式式式式式式式式戎");
+    printXY(WIDTH / 4, 10, "忙式式式式<Bullet  Hell>式式式式忖");
+    printXY(WIDTH / 4, 11, "弛                              弛");
+    printXY(WIDTH / 4, 12, "弛         - Start [F]          弛");
+    printXY(WIDTH / 4, 13, "弛         - Score [S]          弛");
+    printXY(WIDTH / 4, 14, "弛                              弛");
+    printXY(WIDTH / 4, 15, "弛         - Quit  [Q]          弛");
+    printXY(WIDTH / 4, 16, "弛                              弛");
+    printXY(WIDTH / 4, 17, "戌式式式式式式式式式式式式式式式戎");
 }
 
 // returns 0: Quit, 1: start game, 2: score
@@ -205,33 +207,33 @@ int draw_main_menu_sel() {
     int iSel;
     char cSel;
 
-    printXY(35, 19, "Ｃ Selection :  ");
+    printXY(WIDTH / 4, 19, "Ｃ Selection :  ");
     showCursor();
 
     while (1) {
-        printXY(50, 19, "   ");
-        gotoXY(50, 19);
+        printXY(WIDTH / 4 + 15, 19, "       ");
+        gotoXY(WIDTH / 4 + 15, 19);
         scanf("%c", &cSel);
 
         if (cSel == 'Q') {
-            printXY(38, 21, "                   ");
+            printXY(WIDTH / 4, 21, "               ");
             setColor(BLACK, MAGENTA2);
-            printXY(38, 21, " > Quit ");
+            printXY(WIDTH / 4, 21, " > Quit ");
             setColor(WHITE, BLACK);
             printXY(47, 21, "              ");
             gotoXY(0, HEIGHT - 1);
             return iSel = 0;
         } else if (cSel == 'F') {
-            printXY(38, 21, "                   ");
-            printXY(38, 21, "Start game         ");
+            printXY(WIDTH / 4, 21, "               ");
+            printXY(WIDTH / 4, 21, "Start game         ");
             Sleep(1000);
             return iSel = 1;
         } else if (cSel == 'S') {
-            printXY(38, 21, "                   ");
+            printXY(WIDTH / 4, 21, "        ");
             setColor(BLACK, YELLOW2);
-            printXY(38, 21, " > Show score ");
+            printXY(WIDTH / 4, 21, " > Show score ");
             setColor(WHITE, BLACK);
-            printXY(52, 21, "                   ");
+            printXY(52, 21, "      ");
             Sleep(1000);
             return iSel = 2;
         }
@@ -263,24 +265,24 @@ void score_menu(FILE *pF) {
 
 
     while (1) {
-        printXY(35, 8, "忙式式式式<Score  Board>式式式式忖");
-        printXY(35, 9, "弛                              弛");
+        printXY(WIDTH / 4, 8, "忙式式式式<Score  Board>式式式式忖");
+        printXY(WIDTH / 4, 9, "弛                              弛");
         for (i = 0; i < 10; i++) {
             sprintf(output, "弛        [%02d] %3s %4d         弛\n", i + 1, temp[i].name, temp[i].score);
-            printXY(35, 10 + i, output);
+            printXY(WIDTH / 4, 10 + i, output);
         }
-        printXY(35, 20, "弛                              弛");
-        printXY(35, 21, "戌式式式式式式式式式式式式式式式戎");
+        printXY(WIDTH / 4, 20, "弛                              弛");
+        printXY(WIDTH / 4, 21, "戌式式式式式式式式式式式式式式式戎");
 
-        printXY(38, 22, "> Return to main [R] :  ");
+        printXY(WIDTH / 4 + 3, 22, "> Return to main [R] :  ");
         showCursor();
-        gotoXY(61, 22);
+        gotoXY(WIDTH / 4 + 26, 22);
         scanf("%c", &cSel);
 
         if (cSel == 'R') {
-            printXY(38, 24, "                   ");
+            printXY(WIDTH / 4 + 3, 24, "                   ");
             setColor(BLACK, YELLOW2);
-            printXY(38, 24, "> Returning...");
+            printXY(WIDTH / 4 + 3, 24, "> Returning...");
             setColor(WHITE, BLACK);
             Sleep(1000);
             return;

@@ -7,7 +7,7 @@
 
 #define BLANK '.'
 
-#define WIDTH  104
+#define WIDTH  64
 #define HEIGHT 33
 
 // 색상 정의
