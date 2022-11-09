@@ -184,9 +184,9 @@ void player1() {
         }
     }
 
-    //setColor(YELLOW2, BLACK);
+    bufferSetColor(YELLOW2, BLACK);
     bufferPrintXY(pX, pY, "¡Ù");
-    //setColor(WHITE, BLACK);
+    bufferSetColor(WHITE, BLACK);
 }
 
 void game() {
