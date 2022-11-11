@@ -5,7 +5,7 @@
 int hidden_index;
 HANDLE scr_handle[2];
 
-void scr_init() {
+void scr_init(void) {
     CONSOLE_CURSOR_INFO cci;
 
     // 화면 버퍼 2개 생성
@@ -23,25 +23,25 @@ void scr_init() {
     hidden_index = 1;   // 1번화면이 hidden_screen
 }
 
-void scr_switch() {
+void scr_switch(void) {
     SetConsoleActiveScreenBuffer(scr_handle[hidden_index]);
     hidden_index = !hidden_index;   // hidden 0 <-> 1 toggle
 }
 
-void scr_clear() {
+void scr_clear(void) {
     COORD Coor = { 0, 0 };
     DWORD dw;
 
     FillConsoleOutputCharacter(scr_handle[hidden_index], ' ', WIDTH * 2 * HEIGHT, Coor, &dw);
 }
 
-void scr_release() {
+void scr_release(void) {
     CloseHandle(scr_handle[0]);
     CloseHandle(scr_handle[1]);
 }
 
 // Reset CMD color, hide cursor, set size
-void init() {
+void init(void) {
     cls(WHITE, BLACK);
     removeCursor();
     setCmdSize(WIDTH, HEIGHT);
@@ -77,7 +77,6 @@ void gotoXY(int x, int y) {
 
 void bufferGotoXY(int x, int y) {
     COORD pos = { x, y };
-    DWORD dw;
 
     // hidden screen에 gotoxy
     SetConsoleCursorPosition(scr_handle[hidden_index], pos);
@@ -89,12 +88,7 @@ void printscr(char *str) {
     DWORD dw;
 
     // hidden screen에 gotoxy 되었다고 가정하고 print
-    WriteFile(scr_handle[hidden_index], str, strlen(str), &dw, NULL);
-}
-
-void putstar(int x, int y, char ch) {
-    gotoXY(x, y);
-    putchar(ch);
+    WriteFile(scr_handle[hidden_index], str, (DWORD) strlen(str), &dw, NULL);
 }
 
 void printXY(int x, int y, char *ch) {
@@ -119,11 +113,6 @@ void bufferPrintXY(int x, int y, char *ch) {
 
     //gotoXY(x, y);
     //printf("%s", ch);
-}
-
-void erasestar(int x, int y) {
-    gotoXY(x, y);
-    putchar(BLANK);
 }
 
 void setColor(int fg_color, int bg_color) {
@@ -164,6 +153,7 @@ void drawBox(int x1, int y1, int x2, int y2) {
     }
 }
 
+// Used for double buffered output
 void bufferDrawBox(int x1, int y1, int x2, int y2) {
     int x, y;
 
@@ -188,7 +178,7 @@ void bufferDrawBox(int x1, int y1, int x2, int y2) {
 }
 
 // Draw main menu
-void draw_main_menu() {
+void draw_main_menu(void) {
     drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
     printXY(2, HEIGHT - 3, "상상력인재학부 2291012 남윤혁");
 
@@ -203,7 +193,7 @@ void draw_main_menu() {
 }
 
 // returns 0: Quit, 1: start game, 2: score
-int draw_main_menu_sel() {
+int draw_main_menu_sel(void) {
     int iSel;
     char cSel;
 
@@ -215,9 +205,10 @@ int draw_main_menu_sel() {
         gotoXY(WIDTH / 4 + 15, 19);
         scanf("%c", &cSel);
 
+        removeCursor();
         if (cSel == 'Q') {
             printXY(WIDTH / 4, 21, "               ");
-            setColor(BLACK, MAGENTA2);
+            setColor(BLACK, RED2);
             printXY(WIDTH / 4, 21, " > Quit ");
             setColor(WHITE, BLACK);
             printXY(47, 21, "              ");
@@ -225,7 +216,9 @@ int draw_main_menu_sel() {
             return iSel = 0;
         } else if (cSel == 'F') {
             printXY(WIDTH / 4, 21, "               ");
-            printXY(WIDTH / 4, 21, "Start game         ");
+            setColor(BLACK, CYAN2);
+            printXY(WIDTH / 4, 21, " > Start game ");
+            setColor(WHITE, BLACK);
             Sleep(1000);
             return iSel = 1;
         } else if (cSel == 'S') {
