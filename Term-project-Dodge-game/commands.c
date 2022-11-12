@@ -31,7 +31,6 @@ void scr_switch(void) {
 void scr_clear(void) {
     COORD Coor = { 0, 0 };
     DWORD dw;
-
     FillConsoleOutputCharacter(scr_handle[hidden_index], ' ', WIDTH * 2 * HEIGHT, Coor, &dw);
 }
 
@@ -204,7 +203,6 @@ int draw_main_menu_sel(void) {
         printXY(WIDTH / 4 + 15, 19, "       ");
         gotoXY(WIDTH / 4 + 15, 19);
         scanf("%c", &cSel);
-
         removeCursor();
         if (cSel == 'Q') {
             printXY(WIDTH / 4, 21, "               ");
@@ -261,7 +259,7 @@ void score_menu(FILE *pF) {
         printXY(WIDTH / 4, 8, "忙式式式式<Score  Board>式式式式忖");
         printXY(WIDTH / 4, 9, "弛                              弛");
         for (i = 0; i < 10; i++) {
-            sprintf(output, "弛        [%02d] %3s %4d         弛\n", i + 1, temp[i].name, temp[i].score);
+            sprintf(output, "弛        [%02d] %3s %8d     弛\n", i + 1, temp[i].name, temp[i].score);
             printXY(WIDTH / 4, 10 + i, output);
         }
         printXY(WIDTH / 4, 20, "弛                              弛");
