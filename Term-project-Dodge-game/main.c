@@ -7,6 +7,7 @@
 #include <string.h>
 #include "commands.h"
 
+#define TOTAL_BULLET 10
 #define TOTAL_TRACKER_BULLET 5
 
 typedef struct _Bullet {
@@ -210,12 +211,14 @@ void bullet_tracker_delete(int n) {
     bullet_tracker_num--;
 }
 
-void bullet_print() {
+void bullet_print(int frame_count) {
     int newBullet;
     newBullet = 0;
 
     for (int i = 0; i < bullet_num; i++) {
-        bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);     // 총알을 한 프레임 
+		if (frame_count % 10 == 0) {
+			bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);     // 총알을 한 프레임 
+		}
 
         /* 화면 밖으로 나가면 탄막 배열에서 제거 */
         if (bullet_arr[i].bX < 3 || bullet_arr[i].bX > WIDTH - 3) {
@@ -278,33 +281,35 @@ void bullet_tracker_print(int frame_count, int diff) {
 }
 
 /* 플레이어 이동 : https://coding-factory.tistory.com/693 참고 */
-void player1() {
+void player1(int frame_count) {
     bufferPrintXY(p1.pX, p1.pY, " ");
-
-    if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
-        p1.pX -= 2;
-        if (p1.pX <= 1) {
-            p1.pX = 2;
-        }
-    }
-    if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { //오른쪽
-        p1.pX += 2;
-        if (p1.pX >= WIDTH - 3) {
-            p1.pX = WIDTH - 4;
-        }
-    }
-    if (GetAsyncKeyState(VK_UP) & 0x8000) { //위
-        p1.pY--;
-        if (p1.pY <= 0) {
-            p1.pY = 1;
-        }
-    }
-    if (GetAsyncKeyState(VK_DOWN) & 0x8000) { //아래
-        p1.pY++;
-        if (p1.pY >= HEIGHT - 2) {
-            p1.pY = HEIGHT - 3;
-        }
-    }
+	
+	if (frame_count % 5 == 0) {
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
+			p1.pX -= 2;
+			if (p1.pX <= 1) {
+				p1.pX = 2;
+			}
+		}
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { //오른쪽
+			p1.pX += 2;
+			if (p1.pX >= WIDTH - 3) {
+				p1.pX = WIDTH - 4;
+			}
+		}
+		if (GetAsyncKeyState(VK_UP) & 0x8000) { //위
+			p1.pY--;
+			if (p1.pY <= 0) {
+				p1.pY = 1;
+			}
+		}
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000) { //아래
+			p1.pY++;
+			if (p1.pY >= HEIGHT - 2) {
+				p1.pY = HEIGHT - 3;
+			}
+		}
+	}
 
     bufferSetColor(GREEN2, BLACK);
     bufferPrintXY(p1.pX, p1.pY, "Ω");
@@ -379,6 +384,9 @@ void game(Score* result) {
     p1.pY = HEIGHT / 2;
     p1.life = 3;
 
+	bullet_num = 0;
+	bullet_tracker_num = 0;
+
     for (int i = 0; i < TOTAL_BULLET; i++) {
         bullet_create();
     }
@@ -398,33 +406,39 @@ void game(Score* result) {
 
         current_delta = print_score(start);
 
-        player1();
+	
+		player1(frame_count);
+
 
         bullet_clear();
-        bullet_print();
+        bullet_print(frame_count);
 
         if (current_delta > 1000) {
-            if (difficulty > 0 && (frame_count % 500 == 0)) {
+            if (difficulty > 0 && (frame_count % 300 == 0)) {
                 --difficulty;
+				frame_count = 0;
             }
             bullet_tracker_clear(difficulty);
             bullet_tracker_print(frame_count, difficulty);
         }
 
-        for (int i = 0; i < TOTAL_BULLET; i++) {
-            if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY) ||
-                (p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
-                if (p1.life > 0) {
-                    --p1.life;
-                }
-            }
-        }
+		if (frame_count % 2 == 0) {
+			for (int i = 0; i < TOTAL_BULLET; i++) {
+				if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY) ||
+					(p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
+					if (p1.life > 0) {
+						--p1.life;
+					}
+					break;
+				}
+			}
+		}
 
         if (p1.life == 0) {
             break;
         } else {
             ++frame_count;
-            Sleep(15);
+            //Sleep(15);
         }
     }
     scr_clear();
@@ -432,10 +446,16 @@ void game(Score* result) {
 
     cls(WHITE, BLACK);
     printXY(WIDTH / 4, HEIGHT / 2, "YOU DIED");
+	// gotoXY(WIDTH / 4 + 26, 22);
+	printXY(WIDTH / 4 + 24, 22, ">        ");
+	Sleep(1000);
 
-    gotoXY(WIDTH / 4 + 26, 22);
-    showCursor();
-    scanf(" %s", &result->name);
+	do {
+		printXY(WIDTH / 4 + 24, 22, ">        ");
+		gotoXY(WIDTH / 4 + 26, 22);
+		showCursor();
+		scanf(" %s", &result->name);
+	} while (strlen(result->name) != 3);
 
     result->score = (int) current_delta;
     /* >> double buffer end */
