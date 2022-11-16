@@ -202,7 +202,11 @@ int draw_main_menu_sel(void) {
     while (1) {
         printXY(WIDTH / 4 + 15, 19, "       ");
         gotoXY(WIDTH / 4 + 15, 19);
-        scanf("%c", &cSel);
+        //scanf("%c", &cSel);
+		
+		cSel = getch();
+		putchar(cSel);
+
         removeCursor();
         if (cSel == 'Q') {
             printXY(WIDTH / 4, 21, "               ");
