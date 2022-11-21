@@ -210,12 +210,14 @@ void bullet_tracker_delete(int n) {
     bullet_tracker_num--;
 }
 
-void bullet_print() {
+void bullet_print(int frame_count) {
     int newBullet;
     newBullet = 0;
 
     for (int i = 0; i < bullet_num; i++) {
-        bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);     // 총알을 한 프레임 
+        if (frame_count % 10 == 0) {
+            bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);
+        }
 
         /* 화면 밖으로 나가면 탄막 배열에서 제거 */
         if (bullet_arr[i].bX < 3 || bullet_arr[i].bX > WIDTH - 3) {
@@ -278,31 +280,33 @@ void bullet_tracker_print(int frame_count, int diff) {
 }
 
 /* 플레이어 이동 : https://coding-factory.tistory.com/693 참고 */
-void player1() {
+void player1(int frame_count) {
     bufferPrintXY(p1.pX, p1.pY, " ");
 
-    if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
-        p1.pX -= 2;
-        if (p1.pX <= 1) {
-            p1.pX = 2;
+    if (frame_count % 5 == 0) {
+        if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
+            p1.pX -= 2;
+            if (p1.pX <= 1) {
+                p1.pX = 2;
+            }
         }
-    }
-    if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { //오른쪽
-        p1.pX += 2;
-        if (p1.pX >= WIDTH - 3) {
-            p1.pX = WIDTH - 4;
+        if (GetAsyncKeyState(VK_RIGHT) & 0x8000) { //오른쪽
+            p1.pX += 2;
+            if (p1.pX >= WIDTH - 3) {
+                p1.pX = WIDTH - 4;
+            }
         }
-    }
-    if (GetAsyncKeyState(VK_UP) & 0x8000) { //위
-        p1.pY--;
-        if (p1.pY <= 0) {
-            p1.pY = 1;
+        if (GetAsyncKeyState(VK_UP) & 0x8000) { //위
+            p1.pY--;
+            if (p1.pY <= 0) {
+                p1.pY = 1;
+            }
         }
-    }
-    if (GetAsyncKeyState(VK_DOWN) & 0x8000) { //아래
-        p1.pY++;
-        if (p1.pY >= HEIGHT - 2) {
-            p1.pY = HEIGHT - 3;
+        if (GetAsyncKeyState(VK_DOWN) & 0x8000) { //아래
+            p1.pY++;
+            if (p1.pY >= HEIGHT - 2) {
+                p1.pY = HEIGHT - 3;
+            }
         }
     }
 
@@ -334,7 +338,7 @@ void timer_before_game() {
     return;
 }
 
-unsigned long print_score(const clock_t start) {
+unsigned long print_score(clock_t start) {
     char time[WIDTH];
     char temp[WIDTH];
 
@@ -379,6 +383,9 @@ void game(Score* result) {
     p1.pY = HEIGHT / 2;
     p1.life = 3;
 
+    bullet_num = 0;
+    bullet_tracker_num = 0;
+
     for (int i = 0; i < TOTAL_BULLET; i++) {
         bullet_create();
     }
@@ -398,24 +405,28 @@ void game(Score* result) {
 
         current_delta = print_score(start);
 
-        player1();
+        player1(frame_count);
 
         bullet_clear();
-        bullet_print();
+        bullet_print(frame_count);
 
         if (current_delta > 1000) {
             if (difficulty > 0 && (frame_count % 500 == 0)) {
                 --difficulty;
+                frame_count = 0;
             }
             bullet_tracker_clear(difficulty);
             bullet_tracker_print(frame_count, difficulty);
         }
 
-        for (int i = 0; i < TOTAL_BULLET; i++) {
-            if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY) ||
-                (p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
-                if (p1.life > 0) {
-                    --p1.life;
+        if (frame_count % 2 == 0) {
+            for (int i = 0; i < TOTAL_BULLET; i++) {
+                if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY) ||
+                    (p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
+                    if (p1.life > 0) {
+                        --p1.life;
+                    }
+                    break;
                 }
             }
         }
@@ -424,40 +435,46 @@ void game(Score* result) {
             break;
         } else {
             ++frame_count;
-            Sleep(15);
+            //Sleep(15);
         }
     }
     scr_clear();
     scr_release();
+    /* >> double buffer end */
 
     cls(WHITE, BLACK);
-    printXY(WIDTH / 4, HEIGHT / 2, "YOU DIED");
+    printXY(WIDTH / 4 + 12, HEIGHT / 2, "YOU DIED!!");
+    printXY(WIDTH / 4, HEIGHT / 2 + 1, "> ENTER NICKNAME (3 CHARACTERS): ");
+    Sleep(1000);
 
-    gotoXY(WIDTH / 4 + 26, 22);
+    setColor(WHITE, BLACK);
+    printXY(WIDTH / 4 + 14, HEIGHT / 2 + 2, "            ");
+    gotoXY(WIDTH / 4 + 14, HEIGHT / 2 + 2);
     showCursor();
     scanf(" %s", &result->name);
 
+
     result->score = (int) current_delta;
-    /* >> double buffer end */
 }
 
 int main() {
     FILE* pF;
     //Score scr[3] = { {"AAA", 1111}, {"BBB", 999}, {"CCC", 3333} };
 
-    pF = fopen(DATA, "r+b");
-    if (pF == NULL) {
-        pF = fopen(DATA, "w+b");
-        if (pF == NULL) {
-            printXY(0, HEIGHT - 1, "Can not open file. Exiting...");
-            exit(1);
-        }
-    }
-
     /* Main menu */
     while (1) {
-        Score temp;
         int select;
+        Score temp = { 0, };
+        Score temp_arr[10] = { 0, };
+
+        pF = fopen(DATA, "r+");
+        if (pF == NULL) {
+            pF = fopen(DATA, "w+");
+            if (pF == NULL) {
+                printXY(0, HEIGHT - 1, "Can not open file. Exiting...");
+                exit(1);
+            }
+        }
 
         srand((unsigned int) time(NULL));
 
@@ -467,9 +484,11 @@ int main() {
         select = draw_main_menu_sel();
 
         switch (select) {
+            /* Game quit */
             case 0:
                 fclose(pF);
                 exit(0);
+            /* main game */
             case 1:
                 cls(WHITE, BLACK);
                 timer_before_game();
@@ -479,12 +498,26 @@ int main() {
                 cls(WHITE, BLACK);
                 printXY(WIDTH / 4, HEIGHT / 2, temp.name);
 
-                fseek(pF, 0, SEEK_END);
-                fwrite(&temp, sizeof(Score), 1, pF);
+                fseek(pF, 0, SEEK_SET);
+                for (int i = 0; i < 10; i++) {
+                    fread(&temp_arr[i], sizeof(Score), 1, pF);
+                }
+                qsort(temp_arr, 10, sizeof(Score), compare);
 
+                strcpy(temp_arr[9].name, temp.name);
+                temp_arr[9].score = temp.score;
+
+                fseek(pF, 0, SEEK_SET);
+                for (int i = 0; i < 10; i++) {
+                    fwrite(&temp_arr[i], sizeof(Score), 1, pF);
+                }
+
+                fclose(pF);
                 break;
+            /* Score board */
             case 2:
                 score_menu(pF);
+                fclose(pF);
                 break;
         }
     }

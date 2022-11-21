@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <Windows.h>
 
-#define TOTAL_BULLET 10
-#define DATA "score.bin"
+#define TOTAL_BULLET 15
+#define DATA "score.txt"
 
 #define WIDTH  72
 #define HEIGHT 33
@@ -48,7 +48,6 @@ void bufferGotoXY(int x, int y);
 void printscr(char *str);
 void printXY(int x, int y, char *ch);
 void bufferPrintXY(int x, int y, char *ch);
-void erasestar(int x, int y);
 void setColor(int fg_color, int bg_color);
 void bufferSetColor(int fg_color, int bg_color);
 void cls(int fg_color, int bg_color);
@@ -56,6 +55,7 @@ void drawBox(int x1, int y1, int x2, int y2);
 void bufferDrawBox(int x1, int y1, int x2, int y2);
 void draw_main_menu(void);
 int draw_main_menu_sel(void);
+int compare(const void* a, const void* b);
 void score_menu(FILE *pF);
 
 #endif

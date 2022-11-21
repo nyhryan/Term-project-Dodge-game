@@ -202,7 +202,9 @@ int draw_main_menu_sel(void) {
     while (1) {
         printXY(WIDTH / 4 + 15, 19, "       ");
         gotoXY(WIDTH / 4 + 15, 19);
-        scanf("%c", &cSel);
+        //scanf("%c", &cSel);
+        cSel = getch();
+        putchar(cSel);
         removeCursor();
         if (cSel == 'Q') {
             printXY(WIDTH / 4, 21, "               ");
@@ -239,6 +241,19 @@ int draw_main_menu_sel(void) {
     }
 }
 
+int compare(const void* a, const void* b) {
+    Score* pa = (Score*) a;
+    Score* pb = (Score*) b;
+
+    if (pa->score < pb->score) {
+        return 1;
+    } else if (pa->score > pb->score) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
 // read, draws score
 void score_menu(FILE *pF) {
     int i;
@@ -254,6 +269,7 @@ void score_menu(FILE *pF) {
         fread(&temp[i], sizeof(Score), 1, pF);
     }
 
+    qsort(temp, 10, sizeof(Score), compare);
 
     while (1) {
         printXY(WIDTH / 4, 8, "忙式式式式<Score  Board>式式式式忖");
@@ -268,7 +284,9 @@ void score_menu(FILE *pF) {
         printXY(WIDTH / 4 + 3, 22, "> Return to main [R] :  ");
         showCursor();
         gotoXY(WIDTH / 4 + 26, 22);
-        scanf("%c", &cSel);
+        //scanf("%c", &cSel);
+        cSel = getch();
+        putchar(cSel);
 
         if (cSel == 'R') {
             printXY(WIDTH / 4 + 3, 24, "                   ");
