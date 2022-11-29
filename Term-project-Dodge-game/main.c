@@ -7,6 +7,7 @@
 #include <string.h>
 #include "commands.h"
 
+#define TOTAL_BULLET 10
 #define TOTAL_TRACKER_BULLET 5
 
 typedef struct _Bullet {
@@ -41,9 +42,9 @@ int bullet_tracker_num;
 
 /*
 * 방향(orientation)
-*          0
+*         0
 *      7  ↑  1
-*    6  ←  →  2
+*    6  ←   →  2
 *      5  ↓  3
 *         4
 */
@@ -205,7 +206,6 @@ void bullet_tracker_delete(int n) {
         bullet_tracker_arr[i].bX = bullet_tracker_arr[i + 1].bX;
         bullet_tracker_arr[i].bY = bullet_tracker_arr[i + 1].bY;
         bullet_tracker_arr[i].bColor = bullet_tracker_arr[i + 1].bColor;
-        //bullet_tracker_arr[i].bOrient = bullet_tracker_arr[i + 1].bOrient;
     }
     bullet_tracker_num--;
 }
@@ -215,12 +215,12 @@ void bullet_print(int frame_count) {
     newBullet = 0;
 
     for (int i = 0; i < bullet_num; i++) {
-        if (frame_count % 10 == 0) {
+        if (frame_count % 4 == 0) {
             bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);
         }
 
         /* 화면 밖으로 나가면 탄막 배열에서 제거 */
-        if (bullet_arr[i].bX < 3 || bullet_arr[i].bX > WIDTH - 3) {
+        if (bullet_arr[i].bX < 2 || bullet_arr[i].bX > WIDTH - 3) {
             bullet_delete(i);
             i--;
             newBullet++;
@@ -250,7 +250,7 @@ void bullet_tracker_print(int frame_count, int diff) {
 
     for (int i = 0; i < bullet_tracker_num - diff; i++) {
         // 총알을 한 프레임 
-        if (frame_count % 5 == 0) {
+        if (frame_count % 10 == 0) {
             bullet_tracker_move(&bullet_tracker_arr[i].bX, &bullet_tracker_arr[i].bY);
         }
 
@@ -283,7 +283,7 @@ void bullet_tracker_print(int frame_count, int diff) {
 void player1(int frame_count) {
     bufferPrintXY(p1.pX, p1.pY, " ");
 
-    if (frame_count % 5 == 0) {
+    if (frame_count % 2 == 0) {
         if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
             p1.pX -= 2;
             if (p1.pX <= 1) {
@@ -410,7 +410,7 @@ void game(Score* result) {
         bullet_clear();
         bullet_print(frame_count);
 
-        if (current_delta > 1000) {
+        if (current_delta > 10000) {
             if (difficulty > 0 && (frame_count % 500 == 0)) {
                 --difficulty;
                 frame_count = 0;
@@ -419,12 +419,13 @@ void game(Score* result) {
             bullet_tracker_print(frame_count, difficulty);
         }
 
-        if (frame_count % 2 == 0) {
+        if (frame_count % 3 == 0) {
             for (int i = 0; i < TOTAL_BULLET; i++) {
                 if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY) ||
                     (p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
                     if (p1.life > 0) {
                         --p1.life;
+                        bullet_delete(i);
                     }
                     break;
                 }
@@ -447,11 +448,14 @@ void game(Score* result) {
     printXY(WIDTH / 4, HEIGHT / 2 + 1, "> ENTER NICKNAME (3 CHARACTERS): ");
     Sleep(1000);
 
-    setColor(WHITE, BLACK);
-    printXY(WIDTH / 4 + 14, HEIGHT / 2 + 2, "            ");
-    gotoXY(WIDTH / 4 + 14, HEIGHT / 2 + 2);
-    showCursor();
-    scanf(" %s", &result->name);
+    do {
+        setColor(WHITE, BLACK);
+        printXY(WIDTH / 4 + 14, HEIGHT / 2 + 2, "            ");
+        gotoXY(WIDTH / 4 + 14, HEIGHT / 2 + 2);
+        showCursor();
+        fflush(stdout);
+        scanf(" %s", &result->name);
+    } while (strlen(result->name) != 3);
 
 
     result->score = (int) current_delta;

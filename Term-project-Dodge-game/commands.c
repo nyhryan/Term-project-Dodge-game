@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 
 #include "commands.h"
 
@@ -8,19 +8,19 @@ HANDLE scr_handle[2];
 void scr_init(void) {
     CONSOLE_CURSOR_INFO cci;
 
-    // È­¸é ¹öÆÛ 2°³ »ı¼º
+    // í™”ë©´ ë²„í¼ 2ê°œ ìƒì„±
     scr_handle[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     scr_handle[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
-    // Ä¿¼­¸¦ ¼û±ä´Ù
+    // ì»¤ì„œë¥¼ ìˆ¨ê¸´ë‹¤
     cci.dwSize = 1;
     cci.bVisible = FALSE;
     SetConsoleCursorInfo(scr_handle[0], &cci);
     SetConsoleCursorInfo(scr_handle[1], &cci);
 
-    // 0¹øÈ­¸éÀÌ µğÆúÆ®
+    // 0ë²ˆí™”ë©´ì´ ë””í´íŠ¸
     SetConsoleActiveScreenBuffer(scr_handle[0]);
-    hidden_index = 1;   // 1¹øÈ­¸éÀÌ hidden_screen
+    hidden_index = 1;   // 1ë²ˆí™”ë©´ì´ hidden_screen
 }
 
 void scr_switch(void) {
@@ -46,7 +46,7 @@ void init(void) {
     setCmdSize(WIDTH, HEIGHT);
 }
 
-// Ä¿¼­¸¦ ¾Èº¸ÀÌ°Ô ÇÑ´Ù
+// ì»¤ì„œë¥¼ ì•ˆë³´ì´ê²Œ í•œë‹¤
 void removeCursor(void) {
     CONSOLE_CURSOR_INFO curInfo;
     GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
@@ -54,7 +54,7 @@ void removeCursor(void) {
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
 }
 
-// Ä¿¼­¸¦ º¸ÀÌ°Ô ÇÑ´Ù
+// ì»¤ì„œë¥¼ ë³´ì´ê²Œ í•œë‹¤
 void showCursor(void) {
     CONSOLE_CURSOR_INFO curInfo;
     GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
@@ -68,7 +68,7 @@ void setCmdSize(int cols, int rows) {
     system(cmd);
 }
 
-// ³»°¡ ¿øÇÏ´Â À§Ä¡·Î Ä¿¼­ ÀÌµ¿
+// ë‚´ê°€ ì›í•˜ëŠ” ìœ„ì¹˜ë¡œ ì»¤ì„œ ì´ë™
 void gotoXY(int x, int y) {
     COORD pos = { x, y };
      SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
@@ -77,7 +77,7 @@ void gotoXY(int x, int y) {
 void bufferGotoXY(int x, int y) {
     COORD pos = { x, y };
 
-    // hidden screen¿¡ gotoxy
+    // hidden screenì— gotoxy
     SetConsoleCursorPosition(scr_handle[hidden_index], pos);
 
     // SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
@@ -86,7 +86,7 @@ void bufferGotoXY(int x, int y) {
 void printscr(char *str) {
     DWORD dw;
 
-    // hidden screen¿¡ gotoxy µÇ¾ú´Ù°í °¡Á¤ÇÏ°í print
+    // hidden screenì— gotoxy ë˜ì—ˆë‹¤ê³  ê°€ì •í•˜ê³  print
     WriteFile(scr_handle[hidden_index], str, (DWORD) strlen(str), &dw, NULL);
 }
 
@@ -94,7 +94,7 @@ void printXY(int x, int y, char *ch) {
     //DWORD dw;
     COORD pos = { x, y };
 
-    // hidden screen¿¡ gotoXY + print
+    // hidden screenì— gotoXY + print
     //SetConsoleCursorPosition(scr_handle[hidden_index], pos);
     //WriteFile(scr_handle[hidden_index], ch, strlen(ch), &dw, NULL);
 
@@ -106,7 +106,7 @@ void bufferPrintXY(int x, int y, char *ch) {
     DWORD dw;
     COORD pos = { x, y };
 
-    // hidden screen¿¡ gotoXY + print
+    // hidden screenì— gotoXY + print
     SetConsoleCursorPosition(scr_handle[hidden_index], pos);
     WriteFile(scr_handle[hidden_index], ch, strlen(ch), &dw, NULL);
 
@@ -122,7 +122,7 @@ void bufferSetColor(int fg_color, int bg_color) {
     SetConsoleTextAttribute(scr_handle[hidden_index], fg_color | bg_color << 4);
 }
 
-// È­¸é Áö¿ì±â°í ¿øÇÏ´Â ¹è°æ»öÀ¸·Î ¼³Á¤ÇÑ´Ù.
+// í™”ë©´ ì§€ìš°ê¸°ê³  ì›í•˜ëŠ” ë°°ê²½ìƒ‰ìœ¼ë¡œ ì„¤ì •í•œë‹¤.
 void cls(int fg_color, int bg_color) {
     char cmd[100];
     system("cls");
@@ -130,25 +130,25 @@ void cls(int fg_color, int bg_color) {
     system(cmd);
 }
 
-// box ±×¸®±â ÇÔ¼ö, ch ¹®ÀÚ¿­·Î (x1,y1) ~ (x2,y2) box¸¦ ±×¸°´Ù.
+// box ê·¸ë¦¬ê¸° í•¨ìˆ˜, ch ë¬¸ìì—´ë¡œ (x1,y1) ~ (x2,y2) boxë¥¼ ê·¸ë¦°ë‹¤.
 void drawBox(int x1, int y1, int x2, int y2) {
     int x, y;
 
-    printXY(x1, y1, "¦£");
-    printXY(x2, y1, "¦¤");
-    printXY(x1, y2, "¦¦");
-    printXY(x2, y2, "¦¥");
+    printXY(x1, y1, "â”Œ");
+    printXY(x2, y1, "â”");
+    printXY(x1, y2, "â””");
+    printXY(x2, y2, "â”˜");
 
-    // "¦¡"
+    // "â”€"
     for (x = x1 + 2; x < x2; x += 2) {
-        printXY(x, y1, "¦¡");
-        printXY(x, y2, "¦¡");
+        printXY(x, y1, "â”€");
+        printXY(x, y2, "â”€");
     }
 
-    // "¦¢"
+    // "â”‚"
     for (y = y1 + 1; y < y2; y++) {
-        printXY(x1, y, "¦¢");
-        printXY(x2, y, "¦¢");
+        printXY(x1, y, "â”‚");
+        printXY(x2, y, "â”‚");
     }
 }
 
@@ -156,21 +156,21 @@ void drawBox(int x1, int y1, int x2, int y2) {
 void bufferDrawBox(int x1, int y1, int x2, int y2) {
     int x, y;
 
-    bufferPrintXY(x1, y1, "¦£");
-    bufferPrintXY(x2, y1, "¦¤");
-    bufferPrintXY(x1, y2, "¦¦");
-    bufferPrintXY(x2, y2, "¦¥");
+    bufferPrintXY(x1, y1, "â”Œ");
+    bufferPrintXY(x2, y1, "â”");
+    bufferPrintXY(x1, y2, "â””");
+    bufferPrintXY(x2, y2, "â”˜");
 
-    // "¦¡"
+    // "â”€"
     for (x = x1 + 2; x < x2; x += 2) {
-        bufferPrintXY(x, y1, "¦¡");
-        bufferPrintXY(x, y2, "¦¡");
+        bufferPrintXY(x, y1, "â”€");
+        bufferPrintXY(x, y2, "â”€");
     }
 
-    // "¦¢"
+    // "â”‚"
     for (y = y1 + 1; y < y2; y++) {
-        bufferPrintXY(x1, y, "¦¢");
-        bufferPrintXY(x2, y, "¦¢");
+        bufferPrintXY(x1, y, "â”‚");
+        bufferPrintXY(x2, y, "â”‚");
     }
 
 
@@ -179,16 +179,25 @@ void bufferDrawBox(int x1, int y1, int x2, int y2) {
 // Draw main menu
 void draw_main_menu(void) {
     drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
-    printXY(2, HEIGHT - 3, "»ó»ó·ÂÀÎÀçÇĞºÎ 2291012 ³²À±Çõ");
+    printXY(2, HEIGHT - 3, "ìƒìƒë ¥ì¸ì¬í•™ë¶€ 2291012 ë‚¨ìœ¤í˜");
 
-    printXY(WIDTH / 4, 10, "¦£¦¡¦¡¦¡¦¡<Bullet  Hell>¦¡¦¡¦¡¦¡¦¤");
-    printXY(WIDTH / 4, 11, "¦¢                              ¦¢");
-    printXY(WIDTH / 4, 12, "¦¢         - Start [F]          ¦¢");
-    printXY(WIDTH / 4, 13, "¦¢         - Score [S]          ¦¢");
-    printXY(WIDTH / 4, 14, "¦¢                              ¦¢");
-    printXY(WIDTH / 4, 15, "¦¢         - Quit  [Q]          ¦¢");
-    printXY(WIDTH / 4, 16, "¦¢                              ¦¢");
-    printXY(WIDTH / 4, 17, "¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥");
+    setColor(CYAN2, BLACK);
+    printXY(WIDTH / 4 - 10, 4, ":::::::-.      ...    :::::::-.    .,-:::::/ .,::::::");
+    printXY(WIDTH / 4 - 10, 5, " ;;,   `';, .;;;;;;;.  ;;,   `';,,;;-'````'  ;;;;''''");
+    printXY(WIDTH / 4 - 10, 6, " `[[     [[,[[    ï¼¼[[,`[[     [[[[[   [[[[[[/[[cccc");
+    printXY(WIDTH / 4 - 10, 7, "  $$,    $$$$$,     $$$ $$,    $$\"$$c.    \"$$ $$\"\"\"\"");
+    printXY(WIDTH / 4 - 10, 8, "  888_,o8P'\"888, _ _, 88P 888_, o8P' `Y8bo,,,o88o888oo,__");
+    printXY(WIDTH / 4 - 10, 9, "  MMMMP\"`    \"YMMMMMP\"  MMMMP\"`     `'YMUP\"YMM\"\"\"\"YUMMM");
+
+    setColor(WHITE, BLACK);
+    printXY(WIDTH / 4, 11, "â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”");
+    printXY(WIDTH / 4, 12, "â”‚                              â”‚");
+    printXY(WIDTH / 4, 13, "â”‚         - Start [F]          â”‚");
+    printXY(WIDTH / 4, 14, "â”‚         - Score [S]          â”‚");
+    printXY(WIDTH / 4, 15, "â”‚                              â”‚");
+    printXY(WIDTH / 4, 16, "â”‚         - Quit  [Q]          â”‚");
+    printXY(WIDTH / 4, 17, "â”‚                              â”‚");
+    printXY(WIDTH / 4, 18, "â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜");
 }
 
 // returns 0: Quit, 1: start game, 2: score
@@ -196,7 +205,7 @@ int draw_main_menu_sel(void) {
     int iSel;
     char cSel;
 
-    printXY(WIDTH / 4, 19, "¢Ñ Selection :  ");
+    printXY(WIDTH / 4, 19, "â˜ Selection :  ");
     showCursor();
 
     while (1) {
@@ -230,14 +239,6 @@ int draw_main_menu_sel(void) {
             Sleep(1000);
             return iSel = 2;
         }
-        //else {
-        //    printXY(38, 21, "                   ");
-        //    setColor(WHITE, RED2);
-        //    printXY(38, 21, " > Please enter again.");
-        //    setColor(WHITE, BLACK);
-        //    gotoXY(50, 19);
-        //}
-
     }
 }
 
@@ -272,14 +273,14 @@ void score_menu(FILE *pF) {
     qsort(temp, 10, sizeof(Score), compare);
 
     while (1) {
-        printXY(WIDTH / 4, 8, "¦£¦¡¦¡¦¡¦¡<Score  Board>¦¡¦¡¦¡¦¡¦¤");
-        printXY(WIDTH / 4, 9, "¦¢                              ¦¢");
+        printXY(WIDTH / 4, 8, "â”Œâ”€â”€â”€â”€<Score  Board>â”€â”€â”€â”€â”");
+        printXY(WIDTH / 4, 9, "â”‚                              â”‚");
         for (i = 0; i < 10; i++) {
-            sprintf(output, "¦¢        [%02d] %3s %8d     ¦¢\n", i + 1, temp[i].name, temp[i].score);
+            sprintf(output, "â”‚      [%02d] %3s %8d       â”‚\n", i + 1, temp[i].name, temp[i].score);
             printXY(WIDTH / 4, 10 + i, output);
         }
-        printXY(WIDTH / 4, 20, "¦¢                              ¦¢");
-        printXY(WIDTH / 4, 21, "¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥");
+        printXY(WIDTH / 4, 20, "â”‚                              â”‚");
+        printXY(WIDTH / 4, 21, "â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜");
 
         printXY(WIDTH / 4 + 3, 22, "> Return to main [R] :  ");
         showCursor();

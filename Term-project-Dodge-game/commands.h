@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <Windows.h>
 
-#define TOTAL_BULLET 15
+
 #define DATA "score.txt"
 
 #define WIDTH  72
