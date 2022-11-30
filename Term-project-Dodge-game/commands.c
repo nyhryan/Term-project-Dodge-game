@@ -182,22 +182,25 @@ void draw_main_menu(void) {
     printXY(2, HEIGHT - 3, "상상력인재학부 2291012 남윤혁");
 
     setColor(CYAN2, BLACK);
-    printXY(WIDTH / 4 - 10, 4, ":::::::-.      ...    :::::::-.    .,-:::::/ .,::::::");
-    printXY(WIDTH / 4 - 10, 5, " ;;,   `';, .;;;;;;;.  ;;,   `';,,;;-'````'  ;;;;''''");
-    printXY(WIDTH / 4 - 10, 6, " `[[     [[,[[    ＼[[,`[[     [[[[[   [[[[[[/[[cccc");
-    printXY(WIDTH / 4 - 10, 7, "  $$,    $$$$$,     $$$ $$,    $$\"$$c.    \"$$ $$\"\"\"\"");
-    printXY(WIDTH / 4 - 10, 8, "  888_,o8P'\"888, _ _, 88P 888_, o8P' `Y8bo,,,o88o888oo,__");
-    printXY(WIDTH / 4 - 10, 9, "  MMMMP\"`    \"YMMMMMP\"  MMMMP\"`     `'YMUP\"YMM\"\"\"\"YUMMM");
+    printXY(WIDTH / 4 + 7, 4, ":::::::-.      ...    :::::::-.    .,-:::::/ .,::::::");
+    printXY(WIDTH / 4 + 7, 5, " ;;,   `';, .;;;;;;;.  ;;,   `';,,;;-'````'  ;;;;''''");
+    setColor(CYAN1, BLACK);
+    printXY(WIDTH / 4 + 7, 6, " `[[     [[,[[    ＼[[,`[[     [[[[[   [[[[[[/[[cccc");
+    printXY(WIDTH / 4 + 7, 7, "  $$,    $$$$$,     $$$ $$,    $$\"$$c.    \"$$ $$\"\"\"\"");
+	setColor(BLUE2, BLACK);
+    printXY(WIDTH / 4 + 7, 8, "  888_,o8P'\"888, _ _, 88P 888_, o8P' `Y8bo,,,o88o888oo,__");
+	setColor(BLUE1, BLACK);
+    printXY(WIDTH / 4 + 7, 9, "  MMMMP\"`    \"YMMMMMP\"  MMMMP\"`     `'YMUP\"YMM\"\"\"\"YUMMM");
 
     setColor(WHITE, BLACK);
-    printXY(WIDTH / 4, 11, "┌───────────────┐");
-    printXY(WIDTH / 4, 12, "│                              │");
-    printXY(WIDTH / 4, 13, "│         - Start [F]          │");
-    printXY(WIDTH / 4, 14, "│         - Score [S]          │");
-    printXY(WIDTH / 4, 15, "│                              │");
-    printXY(WIDTH / 4, 16, "│         - Quit  [Q]          │");
-    printXY(WIDTH / 4, 17, "│                              │");
-    printXY(WIDTH / 4, 18, "└───────────────┘");
+    printXY(WIDTH / 4 + 17, 11, "┌───────────────┐");
+    printXY(WIDTH / 4 + 17, 12, "│                              │");
+    printXY(WIDTH / 4 + 17, 13, "│         - Start [F]          │");
+    printXY(WIDTH / 4 + 17, 14, "│         - Score [S]          │");
+    printXY(WIDTH / 4 + 17, 15, "│                              │");
+    printXY(WIDTH / 4 + 17, 16, "│         - Quit  [Q]          │");
+    printXY(WIDTH / 4 + 17, 17, "│                              │");
+    printXY(WIDTH / 4 + 17, 18, "└───────────────┘");
 }
 
 // returns 0: Quit, 1: start game, 2: score
@@ -205,12 +208,12 @@ int draw_main_menu_sel(void) {
     int iSel;
     char cSel;
 
-    printXY(WIDTH / 4, 19, "☞ Selection :  ");
+    printXY(WIDTH / 4 + 16, 19, "☞ Selection :  ");
     showCursor();
 
     while (1) {
-        printXY(WIDTH / 4 + 15, 19, "       ");
-        gotoXY(WIDTH / 4 + 15, 19);
+        printXY(WIDTH / 4 + 31, 19, "       ");
+        gotoXY(WIDTH / 4 + 31, 19);
         //scanf("%c", &cSel);
         cSel = getch();
         putchar(cSel);
