@@ -178,67 +178,71 @@ void bufferDrawBox(int x1, int y1, int x2, int y2) {
 
 // Draw main menu
 void draw_main_menu(void) {
+    int logo_x, box_x;
+
+    logo_x = (WIDTH - 56) / 2;
     drawBox(0, 0, WIDTH - 2, HEIGHT - 2);
     printXY(2, HEIGHT - 3, "상상력인재학부 2291012 남윤혁");
 
     setColor(CYAN2, BLACK);
-    printXY(WIDTH / 4 + 7, 4, ":::::::-.      ...    :::::::-.    .,-:::::/ .,::::::");
-    printXY(WIDTH / 4 + 7, 5, " ;;,   `';, .;;;;;;;.  ;;,   `';,,;;-'````'  ;;;;''''");
+    printXY(logo_x, 4, ":::::::-.      ...    :::::::-.    .,-:::::/ .,::::::");
+    printXY(logo_x, 5, " ;;,   `';, .;;;;;;;.  ;;,   `';,,;;-'````'  ;;;;''''");
     setColor(CYAN1, BLACK);
-    printXY(WIDTH / 4 + 7, 6, " `[[     [[,[[    ＼[[,`[[     [[[[[   [[[[[[/[[cccc");
-    printXY(WIDTH / 4 + 7, 7, "  $$,    $$$$$,     $$$ $$,    $$\"$$c.    \"$$ $$\"\"\"\"");
+    printXY(logo_x, 6, " `[[     [[,[[    ＼[[,`[[     [[[[[   [[[[[[/[[cccc");
+    printXY(logo_x, 7, "  $$,    $$$$$,     $$$ $$,    $$\"$$c.    \"$$ $$\"\"\"\"");
 	setColor(BLUE2, BLACK);
-    printXY(WIDTH / 4 + 7, 8, "  888_,o8P'\"888, _ _, 88P 888_, o8P' `Y8bo,,,o88o888oo,__");
+    printXY(logo_x, 8, "  888_,o8P'\"888, _ _, 88P 888_, o8P' `Y8bo,,,o88o888oo,__");
 	setColor(BLUE1, BLACK);
-    printXY(WIDTH / 4 + 7, 9, "  MMMMP\"`    \"YMMMMMP\"  MMMMP\"`     `'YMUP\"YMM\"\"\"\"YUMMM");
+    printXY(logo_x, 9, "  MMMMP\"`    \"YMMMMMP\"  MMMMP\"`     `'YMUP\"YMM\"\"\"\"YUMMM");
 
+    box_x = (WIDTH - 35) / 2;
     setColor(WHITE, BLACK);
-    printXY(WIDTH / 4 + 17, 11, "┌───────────────┐");
-    printXY(WIDTH / 4 + 17, 12, "│                              │");
-    printXY(WIDTH / 4 + 17, 13, "│         - Start [F]          │");
-    printXY(WIDTH / 4 + 17, 14, "│         - Score [S]          │");
-    printXY(WIDTH / 4 + 17, 15, "│                              │");
-    printXY(WIDTH / 4 + 17, 16, "│         - Quit  [Q]          │");
-    printXY(WIDTH / 4 + 17, 17, "│                              │");
-    printXY(WIDTH / 4 + 17, 18, "└───────────────┘");
+    printXY(box_x, 11, "┌───────────────┐");
+    printXY(box_x, 12, "│                              │");
+    printXY(box_x, 13, "│         - Start [F]          │");
+    printXY(box_x, 14, "│         - Score [S]          │");
+    printXY(box_x, 15, "│                              │");
+    printXY(box_x, 16, "│         - Quit  [Q]          │");
+    printXY(box_x, 17, "│                              │");
+    printXY(box_x, 18, "└───────────────┘");
 }
 
 // returns 0: Quit, 1: start game, 2: score
 int draw_main_menu_sel(void) {
-    int iSel;
+    int iSel, pos_x;
     char cSel;
 
-    printXY(WIDTH / 4 + 16, 19, "☞ Selection :  ");
+    pos_x = (WIDTH - 35) / 2;
+    printXY(pos_x, 19, "☞ Selection :  ");
     showCursor();
 
     while (1) {
-        printXY(WIDTH / 4 + 31, 19, "       ");
-        gotoXY(WIDTH / 4 + 31, 19);
-        //scanf("%c", &cSel);
+        printXY(pos_x + 15, 19, "       ");
+        gotoXY(pos_x + 15, 19);
         cSel = getch();
         putchar(cSel);
         removeCursor();
         if (cSel == 'Q') {
-            printXY(WIDTH / 4, 21, "               ");
+            printXY(pos_x, 21, "               ");
             setColor(BLACK, RED2);
-            printXY(WIDTH / 4, 21, " > Quit ");
+            printXY(pos_x, 21, " > Quit ");
             setColor(WHITE, BLACK);
-            printXY(47, 21, "              ");
+            //printXY(47, 21, "              ");
             gotoXY(0, HEIGHT - 1);
             return iSel = 0;
         } else if (cSel == 'F') {
-            printXY(WIDTH / 4, 21, "               ");
+            printXY(pos_x, 21, "               ");
             setColor(BLACK, CYAN2);
-            printXY(WIDTH / 4, 21, " > Start game ");
+            printXY(pos_x, 21, " > Start game ");
             setColor(WHITE, BLACK);
             Sleep(1000);
             return iSel = 1;
         } else if (cSel == 'S') {
-            printXY(WIDTH / 4, 21, "        ");
+            printXY(pos_x, 21, "        ");
             setColor(BLACK, YELLOW2);
-            printXY(WIDTH / 4, 21, " > Show score ");
+            printXY(pos_x, 21, " > Show score ");
             setColor(WHITE, BLACK);
-            printXY(52, 21, "      ");
+            //printXY(52, 21, "      ");
             Sleep(1000);
             return iSel = 2;
         }
@@ -302,4 +306,27 @@ void score_menu(FILE *pF) {
         }
     }
 
+}
+
+void timer_before_game(void) {
+    setColor(WHITE, GREEN2);
+    printXY(WIDTH / 2 - 8, HEIGHT / 2 - 1, "┌──────┐");
+    printXY(WIDTH / 2 - 8, HEIGHT / 2, "│ＴＨＲＥＥ！│");
+    printXY(WIDTH / 2 - 8, HEIGHT / 2 + 1, "└──────┘");
+    Sleep(1000);
+
+    setColor(WHITE, CYAN1);
+    printXY(WIDTH / 2 - 8, HEIGHT / 2 - 1, "┌──────┐");
+    printXY(WIDTH / 2 - 8, HEIGHT / 2, "│　ＴＷＯ！　│");
+    printXY(WIDTH / 2 - 8, HEIGHT / 2 + 1, "└──────┘");
+    Sleep(1000);
+
+    setColor(WHITE, RED2);
+    printXY(WIDTH / 2 - 8, HEIGHT / 2 - 1, "┌──────┐");
+    printXY(WIDTH / 2 - 8, HEIGHT / 2, "│　ＯＮＥ！　│");
+    printXY(WIDTH / 2 - 8, HEIGHT / 2 + 1, "└──────┘");
+    Sleep(1000);
+
+    setColor(WHITE, BLACK);
+    return;
 }

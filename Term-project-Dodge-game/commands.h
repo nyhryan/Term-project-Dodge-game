@@ -5,11 +5,10 @@
 #include <stdio.h>
 #include <Windows.h>
 
-
 #define DATA "score.txt"
 
-#define WIDTH  60
-#define HEIGHT 30
+#define WIDTH  62
+#define HEIGHT 44
 
 // 색상 정의
 #define BLACK	 0
@@ -34,6 +33,27 @@ typedef struct _Score {
     int score;
 } Score;
 
+typedef struct _Bullet {
+	int bX;
+	int bY;
+	int bColor;         // 1 ~ 15 컬러코드
+	int bOrient;        // 0 : 12시, 1 : 1~2시, 2 : 세시, ... , 6 : 9시, 7 : 10 ~ 11시 방향
+	int bSpeed;
+	int bShape;
+} Bullet;
+
+typedef struct _Tracker_Bullet {
+	int bX;
+	int bY;
+	int bColor;
+} Tracker_Bullet;
+
+typedef struct _Player {
+	int pX;
+	int pY;
+	int life;
+} Player;
+
 void scr_init(void);
 void scr_switch(void);
 void scr_clear(void);
@@ -57,5 +77,8 @@ void draw_main_menu(void);
 int draw_main_menu_sel(void);
 int compare(const void* a, const void* b);
 void score_menu(FILE *pF);
+
+void timer_before_game(void);
+
 
 #endif

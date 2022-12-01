@@ -10,28 +10,7 @@
 #define TOTAL_BULLET 20
 #define TOTAL_TRACKER_BULLET 5
 
-typedef struct _Bullet {
-	int bX;
-	int bY;
-	int bColor;         // 1 ~ 15 컬러코드
-	int bOrient;        // 0 : 12시, 1 : 1~2시, 2 : 세시, ... , 6 : 9시, 7 : 10 ~ 11시 방향
-	int bSpeed;
-	int bShape;
-} Bullet;
-
-typedef struct _Tracker_Bullet {
-	int bX;
-	int bY;
-	int bColor;
-} Tracker_Bullet;
-
-typedef struct _Player {
-	int pX;
-	int pY;
-	int life;
-} Player;
-
-// 탄막들 정보 구조체
+/* 일반 총알 */
 Bullet bullet_arr[TOTAL_BULLET];
 
 /* 추격하는 총알 */
@@ -54,8 +33,9 @@ int bullet_tracker_num;
 // 탄막(총알) 생성
 void bullet_create(void) {
 	int init_point, rand_color, rand_speed, rand_shape, pX;
+
 	int color[3] = { 6, 14, 15 };
-	int speed[3] = { 4, 12, 20 };
+	int speed[3] = { 4, 6, 12 };
 
 	rand_color = rand() % 3;            // 총알 컬러 랜덤 지정
 	bullet_arr[bullet_num].bColor = color[rand_color];
@@ -79,7 +59,7 @@ void bullet_create(void) {
 		case 0:
 			pX = rand() % (WIDTH - 5) + 2;
 			if (pX % 2) {
-				++pX;
+				--pX;
 			}
 			bullet_arr[bullet_num].bX = pX;
 			bullet_arr[bullet_num].bY = 2;
@@ -95,7 +75,7 @@ void bullet_create(void) {
 		case 2:
 			pX = rand() % (WIDTH - 6) + 2;
 			if (pX % 2) {
-				++pX;
+				--pX;
 			}
 			bullet_arr[bullet_num].bX = pX;
 			bullet_arr[bullet_num].bY = HEIGHT - 4;
@@ -108,7 +88,7 @@ void bullet_create(void) {
 			bullet_arr[bullet_num].bOrient = rand() % 3 + 5;
 			break;
 	}
-	bullet_num++;
+	++bullet_num;
 }
 
 /* 추격하는 총알*/
@@ -144,8 +124,8 @@ void bullet_clear(void) {
 	}
 }
 
-void bullet_tracker_clear(int diff) {
-	for (int i = 0; i < bullet_tracker_num - 1 - diff; i++) {
+void bullet_tracker_clear(void) {
+	for (int i = 0; i < bullet_tracker_num; i++) {
 		bufferPrintXY(bullet_tracker_arr[i].bX, bullet_tracker_arr[i].bY, " ");
 	}
 }
@@ -216,7 +196,8 @@ void bullet_tracker_move(int *bx, int *by) {
  = 뒤에서 앞으로 한칸씩 땡겨서 n번째 인덱스의 총알 제거
 */
 void bullet_delete(int n) {
-	for (int i = n; i < bullet_num - 1; i++) {
+	int i;
+	for (i = n; i < bullet_num - 1; i++) {
 		bullet_arr[i].bX = bullet_arr[i + 1].bX;
 		bullet_arr[i].bY = bullet_arr[i + 1].bY;
 		bullet_arr[i].bColor = bullet_arr[i + 1].bColor;
@@ -224,7 +205,7 @@ void bullet_delete(int n) {
 		bullet_arr[i].bSpeed = bullet_arr[i + 1].bSpeed;
 		bullet_arr[i].bShape = bullet_arr[i + 1].bShape;
 	}
-	bullet_num--;
+	--bullet_num;
 }
 
 void bullet_tracker_delete(int n) {
@@ -233,27 +214,26 @@ void bullet_tracker_delete(int n) {
 		bullet_tracker_arr[i].bY = bullet_tracker_arr[i + 1].bY;
 		bullet_tracker_arr[i].bColor = bullet_tracker_arr[i + 1].bColor;
 	}
-	bullet_tracker_num--;
+	--bullet_tracker_num;
 }
 
-void bullet_print(int frame_count, int diff) {
+void bullet_print(int frame_count) {
 	int newBullet;
 	newBullet = 0;
 
-	for (int i = 0; i < bullet_num - diff; i++) {
-		if (frame_count % bullet_arr[i].bSpeed == 0) {
+	for (int i = 0; i < bullet_num; i++) {
+		if ((frame_count % bullet_arr[i].bSpeed) == 0) {
 			bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);
 		}
 
-		/* 화면 밖으로 나가면 탄막 배열에서 제거 */
 		if (bullet_arr[i].bX < 2 || bullet_arr[i].bX > WIDTH - 3) {
 			bullet_delete(i);
-			i--;
-			newBullet++;
+			--i;
+			++newBullet;
 		} else if (bullet_arr[i].bY < 1 || bullet_arr[i].bY > HEIGHT - 3) {
 			bullet_delete(i);
-			i--;
-			newBullet++;
+			--i;
+			++newBullet;
 		}
 	}
 
@@ -263,7 +243,7 @@ void bullet_print(int frame_count, int diff) {
 	}
 
 	/* 실제로 탄막을 프린트하는 부분 */
-	for (int i = 0; i < bullet_num - diff; i++) {
+	for (int i = 0; i < bullet_num; i++) {
 		bufferSetColor(bullet_arr[i].bColor, BLACK);
 		if (bullet_arr[i].bShape) {
 			bufferPrintXY(bullet_arr[i].bX, bullet_arr[i].bY, "★");
@@ -274,11 +254,11 @@ void bullet_print(int frame_count, int diff) {
 	}
 }
 
-void bullet_tracker_print(int frame_count, int diff) {
+void bullet_tracker_print(int frame_count) {
 	int newBullet;
 	newBullet = 0;
 
-	for (int i = 0; i < bullet_tracker_num - diff; i++) {
+	for (int i = 0; i < bullet_tracker_num; i++) {
 		// 총알을 한 프레임 
 		if (frame_count % 10 == 0) {
 			bullet_tracker_move(&bullet_tracker_arr[i].bX, &bullet_tracker_arr[i].bY);
@@ -302,7 +282,7 @@ void bullet_tracker_print(int frame_count, int diff) {
 	}
 
 	/* 실제로 탄막을 프린트하는 부분 */
-	for (int i = 0; i < bullet_tracker_num - diff; i++) {
+	for (int i = 0; i < bullet_tracker_num; i++) {
 		bufferSetColor(bullet_tracker_arr[i].bColor, BLACK);
 		bufferPrintXY(bullet_tracker_arr[i].bX, bullet_tracker_arr[i].bY, "▲");
 		bufferSetColor(WHITE, BLACK);
@@ -313,7 +293,7 @@ void bullet_tracker_print(int frame_count, int diff) {
 void player1(int frame_count) {
 	bufferPrintXY(p1.pX, p1.pY, " ");
 
-	if (frame_count % 3 == 0) {
+	if (frame_count % 2 == 0) {
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //왼쪽
 			p1.pX -= 2;
 			if (p1.pX <= 1) {
@@ -345,37 +325,14 @@ void player1(int frame_count) {
 	bufferSetColor(WHITE, BLACK);
 }
 
-void timer_before_game() {
-	setColor(WHITE, GREEN2);
-	printXY(WIDTH / 2 - 8, HEIGHT / 2 - 1, "┌──────┐");
-	printXY(WIDTH / 2 - 8, HEIGHT / 2, "│ＴＨＲＥＥ！│");
-	printXY(WIDTH / 2 - 8, HEIGHT / 2 + 1, "└──────┘");
-	Sleep(1000);
-
-	setColor(WHITE, CYAN1);
-	printXY(WIDTH / 2 - 8, HEIGHT / 2 - 1, "┌──────┐");
-	printXY(WIDTH / 2 - 8, HEIGHT / 2, "│　ＴＷＯ！　│");
-	printXY(WIDTH / 2 - 8, HEIGHT / 2 + 1, "└──────┘");
-	Sleep(1000);
-
-	setColor(WHITE, RED2);
-	printXY(WIDTH / 2 - 8, HEIGHT / 2 - 1, "┌──────┐");
-	printXY(WIDTH / 2 - 8, HEIGHT / 2, "│　ＯＮＥ！　│");
-	printXY(WIDTH / 2 - 8, HEIGHT / 2 + 1, "└──────┘");
-	Sleep(1000);
-
-	setColor(WHITE, BLACK);
-	return;
-}
-
-void print_score(clock_t start, int* score, int frame, int diff) {
-	char time[WIDTH];
+void print_score(time_t start, int* score, int frame, int bullet_num) {
+	int delta;
+	time_t now;
+	char c_time[WIDTH];
 	char temp[WIDTH];
 
-	clock_t now, delta;
-
-	now = clock();
-	delta = (now - start) / 100;
+	now = time(NULL);
+	delta = (int) (now - start);
 
 	bufferSetColor(BLACK, GRAY1);
 
@@ -384,8 +341,9 @@ void print_score(clock_t start, int* score, int frame, int diff) {
 	}
 
 	//sprintf(time, "Score: %d", delta);
-	sprintf(time, "Score: %d-%d", frame, diff);
-	bufferPrintXY(WIDTH / 2 - 16, HEIGHT - 2, time);
+	//sprintf(time, "Score: %d %d", frame, bullet_num);
+	sprintf(c_time, "del:%3d f:%3d b_n:%2d", delta, frame, bullet_num);
+	bufferPrintXY(2, HEIGHT - 2, c_time);
 
 	//if (p1.life == 3) {
 	//	sprintf(temp, "Life: ♥♥♥");
@@ -445,12 +403,8 @@ void check_collision(void) {
 }
 
 void game(Score *result) {
-	int frame_count, tracker_increase, diff;
-	clock_t start;
-	int current_score;
-
-	diff = TOTAL_BULLET * 7 / 8;
-	tracker_increase = TOTAL_TRACKER_BULLET;
+	int current_score, frame_count;
+	time_t start;
 
 	p1.pX = WIDTH / 2;
 	p1.pY = HEIGHT / 2;
@@ -460,6 +414,11 @@ void game(Score *result) {
 	bullet_num = 0;
 	bullet_tracker_num = 0;
 
+	/*
+	* TOTAL_BULLET 개수 만큼 배열에 총알 정보 저장(생성?)
+	* ex) 스폰위치, 방향, 속도, 색깔, 모양
+	* -> 이후 전역변수 bullet_num은 TOTAL_BULLET 개수만큼 됨
+	*/
 	for (int i = 0; i < TOTAL_BULLET; i++) {
 		bullet_create();
 	}
@@ -468,7 +427,7 @@ void game(Score *result) {
 		bullet_tracker_create();
 	}
 
-	start = clock();
+	start = time(NULL);
 	frame_count = 0;
 
 	/* double buffer start >> */
@@ -477,16 +436,15 @@ void game(Score *result) {
 		scr_switch();
 		scr_clear();
 
-		print_score(start, &current_score, frame_count, diff);
+		print_score(start, &current_score, frame_count, bullet_num);
 
 		player1(frame_count);
 
 		bullet_clear();
-		bullet_print(frame_count, diff);
+		bullet_print(frame_count);
 
 		if ((current_score  = 501) > 500) {
-			if ((diff > 0) && (frame_count % 250 == 0)) {
-				--diff;
+			if ((frame_count % 250) == 0) {
 				frame_count = 0;
 			}
 			//bullet_tracker_clear(tracker_increase);
