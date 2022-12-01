@@ -7,7 +7,7 @@
 #include <string.h>
 #include "commands.h"
 
-#define TOTAL_BULLET 50
+#define TOTAL_BULLET 20
 #define TOTAL_TRACKER_BULLET 5
 
 typedef struct _Bullet {
@@ -54,14 +54,20 @@ int bullet_tracker_num;
 // Åº¸·(ÃÑ¾Ë) »ý¼º
 void bullet_create(void) {
 	int init_point, rand_color, rand_speed, rand_shape, pX;
-	int color[4] = { 4, 5, 12, 13 };
-	int speed[3] = { 5, 10, 15 };
+	int color[3] = { 6, 14, 15 };
+	int speed[3] = { 4, 12, 20 };
 
-	rand_color = rand() % 4;            // ÃÑ¾Ë ÄÃ·¯ ·£´ý ÁöÁ¤
+	rand_color = rand() % 3;            // ÃÑ¾Ë ÄÃ·¯ ·£´ý ÁöÁ¤
 	bullet_arr[bullet_num].bColor = color[rand_color];
 
-	rand_speed = rand() % 3;
-	bullet_arr[bullet_num].bSpeed = speed[rand_speed];
+	rand_speed = rand() % 100;
+	if (rand_speed < 10) {
+		bullet_arr[bullet_num].bSpeed = speed[0];
+	} else if (rand_speed < 50 && rand_speed >= 10) {
+		bullet_arr[bullet_num].bSpeed = speed[1];
+	} else {
+		bullet_arr[bullet_num].bSpeed = speed[2];
+	}
 
 	rand_shape = rand() % 2;
 	bullet_arr[bullet_num].bShape = rand_shape;
@@ -133,7 +139,7 @@ void bullet_tracker_create(void) {
 }
 
 void bullet_clear(void) {
-	for (int i = 0; i < bullet_num - 1; i++) {
+	for (int i = 0; i < bullet_num; i++) {
 		bufferPrintXY(bullet_arr[i].bX, bullet_arr[i].bY, " ");
 	}
 }
@@ -215,6 +221,8 @@ void bullet_delete(int n) {
 		bullet_arr[i].bY = bullet_arr[i + 1].bY;
 		bullet_arr[i].bColor = bullet_arr[i + 1].bColor;
 		bullet_arr[i].bOrient = bullet_arr[i + 1].bOrient;
+		bullet_arr[i].bSpeed = bullet_arr[i + 1].bSpeed;
+		bullet_arr[i].bShape = bullet_arr[i + 1].bShape;
 	}
 	bullet_num--;
 }
@@ -228,11 +236,11 @@ void bullet_tracker_delete(int n) {
 	bullet_tracker_num--;
 }
 
-void bullet_print(int frame_count) {
+void bullet_print(int frame_count, int diff) {
 	int newBullet;
 	newBullet = 0;
 
-	for (int i = 0; i < bullet_num; i++) {
+	for (int i = 0; i < bullet_num - diff; i++) {
 		if (frame_count % bullet_arr[i].bSpeed == 0) {
 			bullet_move(&bullet_arr[i].bX, &bullet_arr[i].bY, bullet_arr[i].bOrient);
 		}
@@ -255,7 +263,7 @@ void bullet_print(int frame_count) {
 	}
 
 	/* ½ÇÁ¦·Î Åº¸·À» ÇÁ¸°Æ®ÇÏ´Â ºÎºÐ */
-	for (int i = 0; i < bullet_num; i++) {
+	for (int i = 0; i < bullet_num - diff; i++) {
 		bufferSetColor(bullet_arr[i].bColor, BLACK);
 		if (bullet_arr[i].bShape) {
 			bufferPrintXY(bullet_arr[i].bX, bullet_arr[i].bY, "¡Ú");
@@ -305,7 +313,7 @@ void bullet_tracker_print(int frame_count, int diff) {
 void player1(int frame_count) {
 	bufferPrintXY(p1.pX, p1.pY, " ");
 
-	if (frame_count % 2 == 0) {
+	if (frame_count % 3 == 0) {
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000) { //¿ÞÂÊ
 			p1.pX -= 2;
 			if (p1.pX <= 1) {
@@ -360,14 +368,14 @@ void timer_before_game() {
 	return;
 }
 
-unsigned long print_score(clock_t start) {
+void print_score(clock_t start, int* score, int frame, int diff) {
 	char time[WIDTH];
 	char temp[WIDTH];
 
 	clock_t now, delta;
 
 	now = clock();
-	delta = now - start;
+	delta = (now - start) / 100;
 
 	bufferSetColor(BLACK, GRAY1);
 
@@ -375,35 +383,79 @@ unsigned long print_score(clock_t start) {
 		bufferPrintXY(i, HEIGHT - 2, " ");
 	}
 
-	sprintf(time, "Score: %d", delta);
+	//sprintf(time, "Score: %d", delta);
+	sprintf(time, "Score: %d-%d", frame, diff);
 	bufferPrintXY(WIDTH / 2 - 16, HEIGHT - 2, time);
 
-	if (p1.life == 3) {
-		sprintf(temp, "Life: ¢¾¢¾¢¾");
-	} else if (p1.life == 2) {
-		sprintf(temp, "Life: ¢¾¢¾¢½");
-	} else if (p1.life == 1) {
-		sprintf(temp, "Life: ¢¾¢½¢½");
-	} else {
-		sprintf(temp, "¢Í");
+	//if (p1.life == 3) {
+	//	sprintf(temp, "Life: ¢¾¢¾¢¾");
+	//} else if (p1.life == 2) {
+	//	sprintf(temp, "Life: ¢¾¢¾¢½");
+	//} else if (p1.life == 1) {
+	//	sprintf(temp, "Life: ¢¾¢½¢½");
+	//} else {
+	//	sprintf(temp, "¢Í");
+	//}
+
+	switch (p1.life) {
+		case 1:
+			sprintf(temp, "Life: ¢¾¢½¢½");
+			break;
+		case 2:
+			sprintf(temp, "Life: ¢¾¢¾¢½");
+			break;
+		case 3:
+			sprintf(temp, "Life: ¢¾¢¾¢¾");
+			break;
+		default:
+			sprintf(temp, "¢Í");
+			break;
 	}
 
 	bufferPrintXY(WIDTH / 2, HEIGHT - 2, temp);
 
 	bufferSetColor(WHITE, BLACK);
 
-	return ( unsigned long )delta;
+	*score = (int) delta;
+
+	//return ( unsigned long )delta;
+}
+
+void check_collision(void) {
+	/* collision check */
+	for (int i = 0; i < TOTAL_BULLET; i++) {
+		if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY)) {
+			if (p1.life > 0) {
+				--p1.life;
+				bullet_delete(i);
+			}
+			break;
+		}
+	}
+	for (int i = 0; i < TOTAL_TRACKER_BULLET; i++) {
+		if ((p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
+			if (p1.life > 0) {
+				--p1.life;
+				bullet_tracker_delete(i);
+			}
+			break;
+		}
+	}
+	/* collision check end */
 }
 
 void game(Score *result) {
-	int frame_count, difficulty;
+	int frame_count, tracker_increase, diff;
 	clock_t start;
-	unsigned long current_delta;
+	int current_score;
 
-	difficulty = TOTAL_TRACKER_BULLET;
+	diff = TOTAL_BULLET * 7 / 8;
+	tracker_increase = TOTAL_TRACKER_BULLET;
+
 	p1.pX = WIDTH / 2;
 	p1.pY = HEIGHT / 2;
-	p1.life = 3;
+	//p1.life = 3;
+	p1.life = 300;
 
 	bullet_num = 0;
 	bullet_tracker_num = 0;
@@ -425,41 +477,31 @@ void game(Score *result) {
 		scr_switch();
 		scr_clear();
 
-		current_delta = print_score(start);
+		print_score(start, &current_score, frame_count, diff);
 
 		player1(frame_count);
 
 		bullet_clear();
-		bullet_print(frame_count);
+		bullet_print(frame_count, diff);
 
-		if (current_delta > 10000) {
-			if (difficulty > 0 && (frame_count % 500 == 0)) {
-				--difficulty;
+		if ((current_score  = 501) > 500) {
+			if ((diff > 0) && (frame_count % 250 == 0)) {
+				--diff;
 				frame_count = 0;
 			}
-			bullet_tracker_clear(difficulty);
-			bullet_tracker_print(frame_count, difficulty);
+			//bullet_tracker_clear(tracker_increase);
+			//bullet_tracker_print(frame_count, tracker_increase);
 		}
 
-		//if (frame_count % 2 == 0) {
-		//}
-		for (int i = 0; i < TOTAL_BULLET; i++) {
-			if ((p1.pX == bullet_arr[i].bX) && (p1.pY == bullet_arr[i].bY) ||
-				(p1.pX == bullet_tracker_arr[i].bX) && (p1.pY == bullet_tracker_arr[i].bY)) {
-				if (p1.life > 0) {
-					--p1.life;
-					bullet_delete(i);
-				}
-				break;
-			}
-		}
+		check_collision();
 
+		/* [life = 0] -> game end */
 		if (p1.life == 0) {
 			break;
 		} else {
 			++frame_count;
-			//Sleep(15);
 		}
+		/* end loop */
 	}
 	scr_clear();
 	scr_release();
@@ -475,12 +517,11 @@ void game(Score *result) {
 		printXY(WIDTH / 4 + 14, HEIGHT / 2 + 2, "            ");
 		gotoXY(WIDTH / 4 + 14, HEIGHT / 2 + 2);
 		showCursor();
-		fflush(stdout);
 		scanf(" %s", &result->name);
 	} while (strlen(result->name) != 3);
 
 
-	result->score = ( int )current_delta;
+	result->score = ( int )current_score;
 }
 
 int main() {
@@ -514,7 +555,7 @@ int main() {
 			case 0:
 				fclose(pF);
 				exit(0);
-				/* main game */
+			/* main game */
 			case 1:
 				cls(WHITE, BLACK);
 				timer_before_game();
@@ -540,7 +581,7 @@ int main() {
 
 				fclose(pF);
 				break;
-				/* Score board */
+			/* Score board */
 			case 2:
 				score_menu(pF);
 				fclose(pF);

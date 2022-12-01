@@ -8,8 +8,8 @@
 
 #define DATA "score.txt"
 
-#define WIDTH  140
-#define HEIGHT 50
+#define WIDTH  60
+#define HEIGHT 30
 
 // 색상 정의
 #define BLACK	 0
