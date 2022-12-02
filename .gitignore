@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Term-project-Dodge-game/score.bin
+/Term-project-Dodge-game/score.txt
+
+
