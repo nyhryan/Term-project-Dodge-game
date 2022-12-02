@@ -7,8 +7,8 @@
 
 #define DATA "score.txt"
 
-#define WIDTH  62
-#define HEIGHT 44
+#define WIDTH  64
+#define HEIGHT 28
 
 // 색상 정의
 #define BLACK	 0
@@ -54,6 +54,27 @@ typedef struct _Player {
 	int life;
 } Player;
 
+typedef struct _Gold {
+	int x;
+	int y;
+} Gold;
+
+typedef struct _Heart {
+	int x;
+	int y;
+	int heart_true;
+} Heart;
+
+typedef struct _Gamedata {
+	int current_score;
+	int gold_score;
+	int frame_count;
+	int bullet_count;
+	int bullet_zig_count;
+	int gold_count;
+	int bullet_tracker_count;
+} Gamedata;
+
 void scr_init(void);
 void scr_switch(void);
 void scr_clear(void);
@@ -74,7 +95,7 @@ void cls(int fg_color, int bg_color);
 void drawBox(int x1, int y1, int x2, int y2);
 void bufferDrawBox(int x1, int y1, int x2, int y2);
 void draw_main_menu(void);
-int draw_main_menu_sel(void);
+void draw_main_menu_sel(int* select);
 int compare(const void* a, const void* b);
 void score_menu(FILE *pF);
 
